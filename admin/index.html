@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teacher Login | Anh ngữ Ms. Kim</title>
+<style>
+:root{font-family:Aptos,'Segoe UI',Arial,sans-serif;color:#132b4c;background:#f5f7fc}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}.card{background:white;width:min(450px,100%);border:1px solid #dfe5ef;border-top:4px solid #bf233d;border-radius:16px;padding:30px;box-shadow:0 12px 34px #11264b12}.eyebrow{font-size:12px;letter-spacing:.17em;color:#c1253f;font-weight:750}h1{font-size:26px;margin:12px 0 6px}p{color:#64738b;line-height:1.55;font-size:14px}label{display:block;margin-top:18px;font-weight:700;font-size:14px}input{width:100%;margin-top:7px;padding:12px;border:1px solid #b8c5d5;border-radius:8px;font-size:16px}button{padding:12px 16px;border:0;border-radius:8px;background:#102b50;color:#fff;font-weight:700;cursor:pointer;margin-top:22px;width:100%}button:disabled{opacity:.55;cursor:wait}.outline{color:#102b50;background:#edf2fa}#message{min-height:20px;color:#bd2036}#success{display:none}a{color:#102b50}.small{font-size:12px;color:#65738b}
+</style>
+</head>
+<body><main class="card"><div class="eyebrow">ANH NGỮ MS. KIM · TEST PREP</div><section id="login"><h1>Teacher Login</h1><p>Chỉ dành cho tài khoản quản trị. Học sinh không đăng nhập tại đây.</p><form id="form"><label for="email">Email quản trị</label><input id="email" type="email" autocomplete="username" required><label for="password">Mật khẩu</label><input id="password" type="password" autocomplete="current-password" required><button id="submit" type="submit">SIGN IN</button></form><p id="message" role="alert" aria-live="polite"></p></section><section id="success"><h1>Admin verified ✓</h1><p>Đăng nhập thành công. Firebase đã xác nhận tài khoản và hồ sơ Admin của Ms. Kim.</p><p class="small" id="user"></p><p class="small">Đây là trang kiểm tra quyền, chưa phải Teacher Dashboard quản lý học sinh.</p><button id="logout" class="outline">LOG OUT</button></section><p class="small"><a href="../">← Back to Test Prep</a></p></main>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+import {getFirestore,doc,getDoc} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+const firebaseConfig={apiKey:'AIzaSyDmVdptLMb_lgCJLI4VTmR3JqmADn8laKY',authDomain:'anhngumskimtestprep.firebaseapp.com',projectId:'anhngumskimtestprep',storageBucket:'anhngumskimtestprep.firebasestorage.app',messagingSenderId:'228621664116',appId:'1:228621664116:web:1777f025f34cf1525f3621',measurementId:'G-S8406HHLX5'};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);const $=x=>document.getElementById(x);let checking=0;
+function showLogin(msg=''){ $('login').style.display='block';$('success').style.display='none';$('message').textContent=msg; }
+function showAdmin(user){$('login').style.display='none';$('success').style.display='block';$('user').textContent=user.email;}
+onAuthStateChanged(auth,async user=>{const seq=++checking;if(!user){showLogin();return}try{const snap=await getDoc(doc(db,'admins',user.uid));if(seq!==checking)return;if(snap.exists()&&snap.data().role==='admin'){showAdmin(user)}else{await signOut(auth);showLogin('Tài khoản chưa được cấp quyền Admin.')}}catch(e){if(seq!==checking)return;showLogin('Không thể kiểm tra quyền Admin. Hãy kiểm tra Firestore Rules và kết nối mạng.')} });
+$('form').addEventListener('submit',async e=>{e.preventDefault();$('submit').disabled=true;$('message').textContent='Đang xác thực...';try{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);$('password').value='';}catch(e){showLogin('Đăng nhập không thành công. Kiểm tra email/mật khẩu hoặc thử lại.')}finally{$('submit').disabled=false}});
+$('logout').addEventListener('click',()=>signOut(auth));
+</script></body></html>
