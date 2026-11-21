@@ -180,7 +180,7 @@ body.review-resizing,body.review-resizing *{cursor:col-resize!important;user-sel
 .matching-group h4{color:#102b50;font-size:16px;margin:20px 0 8px}
 .match-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .match-item{display:flex;text-align:left;align-items:start;gap:8px;border:1px solid #c7d3e5;background:#f6f9ff;color:#152c50;border-radius:8px;padding:9px;font-size:14px;cursor:grab;line-height:1.4;min-width:0}
-.match-item b{min-width:20px;color:#102b50;font-weight:850}.match-item.used{opacity:.42;cursor:not-allowed}.match-item.chosen{outline:2px solid #174baf;background:#dceaff}
+.match-item b{min-width:20px;color:#102b50;font-weight:850}.match-item[hidden]{display:none!important}.match-bank.drop-focus{outline:2px dashed #174baf;outline-offset:4px;background:#edf4ff}.match-item.used{opacity:.42;cursor:not-allowed}.match-item.chosen{outline:2px solid #174baf;background:#dceaff}
 .match-rows{display:grid;gap:7px}.match-row{display:grid;grid-template-columns:40px minmax(0,1fr) minmax(106px,140px);align-items:center;gap:8px;border-bottom:1px solid #e7ecf3;padding:7px 0;font-size:15px;scroll-margin-top:130px}
 .match-row .match-num{font-weight:800;color:#102b50}.match-slot{min-height:42px;border:1px dashed #7b93b3;border-radius:7px;background:#f8faff;display:flex;gap:5px;align-items:center;justify-content:center;padding:5px;color:#60758d;cursor:pointer;font-size:13px}
 .match-slot.filled{background:#e9f0fc;border:1px solid #7c9fce;color:#102b50;font-weight:750}.match-slot.drop-focus{outline:2px solid #174baf;background:#dceaff}.match-clear{background:transparent;border:0;color:#bf2638;cursor:pointer;padding:2px 4px;font-size:17px}
@@ -198,7 +198,7 @@ body.review-resizing,body.review-resizing *{cursor:col-resize!important;user-sel
 .matching-group .match-row .match-prompt{padding-top:10px;line-height:1.45}
 .matching-group .match-row .match-slot{grid-column:2;justify-content:flex-start;text-align:left;line-height:1.35;font-size:13px;min-height:44px;overflow-wrap:anywhere}
 .matching-group .match-row .match-slot.filled{font-weight:650}
-.matching-group .match-item{width:100%;font-size:13.5px}
+.matching-group .match-item{width:100%;font-size:13.5px;touch-action:none}.matching-group .match-slot.filled{cursor:grab;touch-action:none}
 #examBody.split-review .matching-group .match-layout{grid-template-columns:minmax(0,1fr);gap:12px}
 #examBody.split-review .matching-group .match-answer-column{display:none}
 #play:disabled{opacity:.56;cursor:not-allowed}
@@ -243,7 +243,7 @@ body.review-resizing,body.review-resizing *{cursor:col-resize!important;user-sel
 const QUESTIONS={"17": ["Which event requires the largest number of volunteers?", ["the music festival", "the science festival", "the book festival"]], "18": ["What is the most important requirement for volunteers at the festivals?", ["interpersonal skills", "personal interest in the event", "flexibility"]], "19": ["New volunteers will start working in the week beginning", ["2 September.", "9 September.", "23 September."]], "20": ["What is the next annual event for volunteers?", ["a boat trip", "a barbecue", "a party"]], "26": ["Rosie says that in her own city the main problem is", ["crime.", "housing.", "unemployment."]], "27": ["What recent additions to the outskirts of their cities are both students happy about?", ["conference centres", "sports centres", "retail centres"]], "28": ["The students agree that developing disused industrial sites may", ["have unexpected costs.", "damage the urban environment.", "destroy valuable historical buildings."]], "29": ["The students will mention Masdar City as an example of an attempt to achieve", ["daily collections for waste recycling.", "sustainable energy use.", "free transport for everyone."]], "30": ["When discussing the ecotown of Greenhill Abbots, Colin is uncertain about", ["what its objectives were.", "why there was opposition to it.", "how much of it has actually been built."]]};
 const MULTI={};
 const MATCH={"2": {"options": ["providing entertainment", "providing publicity about a council service", "contacting local businesses", "giving advice to visitors", "collecting feedback on events", "selling tickets", "introducing guest speakers at an event", "encouraging cooperation between local organisations", "helping people find their seats"], "questions": {"11": "walking around the town centre", "12": "helping at concerts", "13": "getting involved with community groups", "14": "helping with a magazine", "15": "participating at lunches for retired people", "16": "helping with the website"}}, "3": {"options": ["The information given about this was too vague.", "This may not be relevant to their course.", "This will involve only a small number of statistics.", "It will be easy to find facts about this.", "The facts about this may not be reliable.", "No useful research has been done on this.", "The information provided about this was interesting."], "questions": {"21": "Population", "22": "Health", "23": "Economies", "24": "Culture", "25": "Poverty"}}};
-const chosenMatch={2:null,3:null};
+
 const KEY={"1": "break", "2": "time", "3": "shower", "4": "money", "5": "memory", "6": "lifting", "7": "fall", "8": "taxi", "9": "insurance", "10": "stress", "11": "D", "12": "I", "13": "H", "14": "E", "15": "A", "16": "B", "17": "B", "18": "A", "19": "B", "20": "A", "21": "D", "22": "G", "23": "B", "24": "A", "25": "E", "26": "C", "27": "A", "28": "A", "29": "B", "30": "C", "31": "photos", "32": "vegan", "33": "chefs", "34": "journalists", "35": "health", "36": "coffee", "37": "environment", "38": "reputation", "39": "price", "40": "soil"};
 const ALTERNATIVES={"31": ["photographs", "pictures"], "33": ["cooks"], "34": ["reporters"], "39": ["cost"]};
 const EVIDENCE={};
@@ -268,49 +268,101 @@ function single(container,n){const [prompt,opts]=QUESTIONS[n];const box=document
 function pair(container,id){const [prompt,opts]=MULTI[id],numbers=id.split('-').map(Number),box=document.createElement('div');box.className='qcard';box.id='q'+numbers[0];const title=document.createElement('div');title.className='qtitle';title.textContent='Questions '+numbers[0]+'–'+numbers[1]+'  '+prompt;box.append(title);const choices=document.createElement('div');choices.className='opts';const fields=[];opts.forEach((v,i)=>{let l='ABCDE'[i],row=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.value=l;input.addEventListener('change',()=>{const selected=fields.filter(x=>x.checked).map(x=>x.value);answers[numbers[0]]=selected[0]||'';answers[numbers[1]]=selected[1]||'';fields.forEach(x=>x.disabled=selected.length>=2&&!x.checked);navUpdate()});fields.push(input);row.append(input,document.createTextNode(' '+l+'. '+v));choices.append(row)});box.append(choices);$(container).append(box)}
 for(let n=17;n<=20;n++)single('p2single',n);for(let n=26;n<=30;n++)single('p3single',n);buildMatch(2);buildMatch(3);navUpdate();
 
+// Match questions: drag from answer bank to slot, and from slot back to bank only.
+// A filled answer slot cannot be dragged to another question slot.
+function parseMatchTransfer(e){
+ const value=e.dataTransfer?.getData('text/plain')||'';
+ const bits=value.split('|');
+ return {origin:bits[0],part:Number(bits[1]),question:Number(bits[2]),letter:bits[3]};
+}
+function matchPayload(origin,partNum,question,letter){return [origin,partNum,question,letter].join('|')}
 function buildMatch(partNum){
  const obj=MATCH[partNum],host=$('match-part'+partNum),bank=host.querySelector('.match-bank'),rows=host.querySelector('.match-rows');
- // Arrange matching questions on the left and the COMPLETE answer choices on the right.
  const originalHeading=host.querySelector('h4');
  const layout=document.createElement('div');layout.className='match-layout';
  const questionColumn=document.createElement('div');questionColumn.className='match-question-column';
  const answerColumn=document.createElement('div');answerColumn.className='match-answer-column';
  const questionHeading=document.createElement('h4');questionHeading.textContent=originalHeading?.textContent||'Questions';
- const answerHeading=document.createElement('h4');answerHeading.textContent='Answer choices · Drag or tap';
+ const answerHeading=document.createElement('h4');answerHeading.textContent='Answer choices · Drag';
  questionColumn.append(questionHeading,rows);answerColumn.append(answerHeading,bank);
  if(originalHeading)originalHeading.remove();host.querySelector('h3')?.after(layout);layout.append(questionColumn,answerColumn);
-
  const letters='ABCDEFGHI';
  obj.options.forEach((label,index)=>{
-   const letter=letters[index],item=document.createElement('button');item.type='button';item.className='match-item';item.draggable=true;item.dataset.letter=letter;item.dataset.matchPart=partNum;
+   const letter=letters[index],item=document.createElement('div');item.className='match-item';item.draggable=true;item.dataset.letter=letter;item.dataset.matchPart=partNum;
    item.innerHTML='<b>'+letter+'</b><span></span>';item.querySelector('span').textContent=label;
-   item.addEventListener('click',()=>{if(started&&submitted)return;chosenMatch[partNum]=letter;updateMatchBank(partNum)});
-   item.addEventListener('dragstart',e=>{if(submitted){e.preventDefault();return;}e.dataTransfer.setData('text/plain',String(partNum)+':'+letter);e.dataTransfer.effectAllowed='move';});bank.append(item);
+   item.addEventListener('dragstart',e=>{
+     if(submitted||item.hidden){e.preventDefault();return;}
+     e.dataTransfer.setData('text/plain',matchPayload('bank',partNum,0,letter));e.dataTransfer.setData('application/x-kim-match-bank','1');e.dataTransfer.effectAllowed='move';
+   });
+   bank.append(item);
+ });
+ // Dropping anywhere inside the answer pool returns an assigned answer to the pool.
+ bank.addEventListener('dragover',e=>{
+   if(submitted)return;
+   const payload=parseMatchTransfer(e);
+   // dragover's dataTransfer.getData is restricted in some browsers; use types marker too.
+   if(e.dataTransfer.types.includes('application/x-kim-match-slot')){e.preventDefault();e.dataTransfer.dropEffect='move';bank.classList.add('drop-focus')}
+ });
+ bank.addEventListener('dragleave',e=>{if(!bank.contains(e.relatedTarget))bank.classList.remove('drop-focus')});
+ bank.addEventListener('drop',e=>{
+   bank.classList.remove('drop-focus');if(submitted)return;
+   const payload=parseMatchTransfer(e);
+   if(payload.origin!=='slot'||payload.part!==partNum||!Object.hasOwn(obj.questions,String(payload.question)))return;
+   e.preventDefault();
+   if(String(answers[payload.question]||'')!==payload.letter)return;
+   assignMatch(partNum,payload.question,'');
  });
  Object.entries(obj.questions).forEach(([num,label])=>{
-   const n=Number(num),row=document.createElement('div');row.className='match-row';row.id='q'+n;row.innerHTML='<span class="match-num">'+n+'</span><span class="match-prompt"></span><div class="match-slot" role="button" tabindex="0" data-match-slot="'+n+'" aria-label="Select an answer for question '+n+'"></div>';
+   const n=Number(num),row=document.createElement('div');row.className='match-row';row.id='q'+n;
+   row.innerHTML='<span class="match-num">'+n+'</span><span class="match-prompt"></span><div class="match-slot" data-match-slot="'+n+'" aria-label="Answer for question '+n+'"></div>';
    row.querySelector('.match-prompt').textContent=label;const slot=row.querySelector('.match-slot');
-   slot.addEventListener('click',()=>{if(submitted){goToEvidence(n);return;}if(chosenMatch[partNum])assignMatch(partNum,n,chosenMatch[partNum]);else if(answers[n])assignMatch(partNum,n,'')});
-   slot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();slot.click()}});
-   slot.addEventListener('dragover',e=>{if(submitted)return;e.preventDefault();slot.classList.add('drop-focus')});
+   slot.addEventListener('click',()=>{if(submitted)goToEvidence(n)});
+   slot.addEventListener('dragstart',e=>{
+     const letter=String(answers[n]||'');
+     if(submitted||!letter){e.preventDefault();return;}
+     e.dataTransfer.setData('text/plain',matchPayload('slot',partNum,n,letter));
+     e.dataTransfer.setData('application/x-kim-match-slot','1');
+     e.dataTransfer.effectAllowed='move';
+   });
+   slot.addEventListener('dragover',e=>{
+     if(submitted)return;
+     // Crucial: only NEW bank answers can enter question slots. Assigned answers cannot move slot-to-slot.
+     if(!e.dataTransfer.types.includes('application/x-kim-match-bank'))return;
+     e.preventDefault();e.dataTransfer.dropEffect='move';slot.classList.add('drop-focus');
+   });
    slot.addEventListener('dragleave',()=>slot.classList.remove('drop-focus'));
-   slot.addEventListener('drop',e=>{slot.classList.remove('drop-focus');if(submitted)return;e.preventDefault();let [p,l]=String(e.dataTransfer.getData('text/plain')).split(':');if(Number(p)===partNum&&letters.includes(l))assignMatch(partNum,n,l)});
+   slot.addEventListener('drop',e=>{
+     slot.classList.remove('drop-focus');if(submitted)return;
+     const payload=parseMatchTransfer(e);
+     if(payload.origin!=='bank'||payload.part!==partNum||!obj.options['ABCDEFGHI'.indexOf(payload.letter)])return;
+     e.preventDefault();assignMatch(partNum,n,payload.letter);
+   });
    rows.append(row);
  });
  updateMatchBank(partNum);
 }
 function assignMatch(p,n,letter){
  if(submitted)return;
- if(letter){for(const number of Object.keys(MATCH[p].questions)){if(Number(number)!==n&&answers[number]===letter)answers[number]='';}}
- answers[n]=letter||'';chosenMatch[p]=null;updateMatchBank(p);navUpdate();
+ // No moving between slots, and bank answers can only be used once.
+ if(letter&&Object.keys(MATCH[p].questions).some(number=>Number(number)!==n&&answers[number]===letter))return;
+ answers[n]=letter||'';
+ updateMatchBank(p);navUpdate();
 }
 function updateMatchBank(p){
  const obj=MATCH[p],root=$('match-part'+p),used=new Set(Object.keys(obj.questions).map(n=>answers[n]).filter(Boolean));
- root.querySelectorAll('.match-item').forEach(b=>{const isUsed=used.has(b.dataset.letter);b.classList.toggle('used',isUsed);b.classList.toggle('chosen',chosenMatch[p]===b.dataset.letter);b.disabled=isUsed&&!submitted;});
- root.querySelectorAll('.match-slot').forEach(el=>{let val=String(answers[el.dataset.matchSlot]||'');el.textContent=val?(val+' · '+(obj.options['ABCDEFGHI'.indexOf(val)]||'')):'';el.classList.toggle('filled',!!val);});
+ root.querySelectorAll('.match-item').forEach(item=>{
+   const isUsed=used.has(item.dataset.letter);
+   item.hidden=isUsed;item.draggable=!submitted&&!isUsed;
+   item.classList.remove('chosen','used');
+ });
+ root.querySelectorAll('.match-slot').forEach(el=>{
+   const val=String(answers[el.dataset.matchSlot]||'');
+   el.textContent=val?(val+' · '+(obj.options['ABCDEFGHI'.indexOf(val)]||'')):'';
+   el.classList.toggle('filled',!!val);el.draggable=!submitted&&!!val;
+ });
 }
 function syncMatchUI(){updateMatchBank(2);updateMatchBank(3)}
-function clearMatchUI(){chosenMatch[2]=chosenMatch[3]=null;syncMatchUI();document.querySelectorAll('.match-slot').forEach(el=>{el.classList.remove('review-input-good','review-input-bad');el.removeAttribute('title')})}
+function clearMatchUI(){syncMatchUI();document.querySelectorAll('.match-slot').forEach(el=>{el.classList.remove('review-input-good','review-input-bad');el.removeAttribute('title')})}
 const splitCache={};let splitLeft=null,splitRight=null,splitResizer=null;
 // Ratio only controls the visual layout; it does not touch submitted answers or Firebase.
 function setReviewDivider(percent){
