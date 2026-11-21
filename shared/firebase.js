@@ -19,7 +19,13 @@ export async function roleFor(user) {
   const adminSnap = await getDoc(doc(db,'admins',user.uid));
   if (adminSnap.exists() && adminSnap.data()?.role === 'admin') return 'admin';
   const studentSnap = await getDoc(doc(db,'students',user.uid));
-  if (studentSnap.exists() && (studentSnap.data()?.status === 'active' || (studentSnap.data()?.status == null && studentSnap.data()?.active === true))) return 'student';
+  if (studentSnap.exists()) {
+    const profile = studentSnap.data();
+    const active = typeof profile.status === 'string'
+      ? profile.status.trim().toLowerCase() === 'active'
+      : profile.active === true;
+    if (active) return 'student';
+  }
   return 'unassigned';
 }
 export function studentAlias(username) {
