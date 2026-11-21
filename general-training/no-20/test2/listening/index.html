@@ -147,7 +147,7 @@ body,button,input,select{font-family:Aptos,"Segoe UI",Arial,sans-serif}
 }
 
 /* TEST 2: Review only – independent split panes; original exam stays unchanged. */
-#examBody.split-review{display:grid!important;grid-template-columns:minmax(0,calc(var(--review-left-percent,50%) - 6px)) 12px minmax(0,1fr);gap:0;align-items:start;height:calc(100vh - 125px);overflow:hidden}
+#examBody.split-review{display:grid!important;grid-template-columns:minmax(0,calc(var(--review-left-percent,50%) - 1.5px)) 3px minmax(0,1fr);gap:0;align-items:start;height:calc(100vh - 125px);overflow:hidden}
 #examBody.split-review .exam-part.active{display:contents}
 #examBody.split-review .exam-part.active > h2,#examBody.split-review .exam-part.active > p.partnote{display:none}
 #examBody.split-review .exam-part.active > :not(.script-zone):not(h2):not(p.partnote){grid-column:1}
@@ -203,6 +203,33 @@ body.review-resizing,body.review-resizing *{cursor:col-resize!important;user-sel
 #examBody.split-review .matching-group .match-answer-column{display:none}
 #play:disabled{opacity:.56;cursor:not-allowed}
 @media(max-width:720px){.matching-group .match-layout{grid-template-columns:1fr}.matching-group .match-question-column{order:1}.matching-group .match-answer-column{order:2}}
+
+/* Nov 21 compact matching: fit all question slots and all answer choices on typical desktop viewport. */
+.matching-group{padding:10px 12px;margin:9px 0 13px}
+.matching-group h3{font-size:16px;margin:0 0 5px}
+.matching-group .match-layout{grid-template-columns:minmax(0,1.07fr) minmax(0,1fr);gap:12px;margin-top:7px}
+.matching-group .match-question-column h4,.matching-group .match-answer-column h4{margin:0 0 5px;font-size:13px}
+.matching-group .match-rows{gap:2px}
+.matching-group .match-row{display:grid;grid-template-columns:24px minmax(100px,.9fr) minmax(132px,1.2fr);align-items:center;gap:5px;min-height:39px;padding:3px 0;font-size:13px}
+.matching-group .match-row .match-num,.matching-group .match-row .match-prompt{padding-top:0;line-height:1.24}
+.matching-group .match-row .match-slot{grid-column:3;min-height:33px;padding:3px 7px;font-size:12px;line-height:1.18;border-radius:5px}
+.matching-group .match-row .match-slot:empty::after{content:"";display:block;min-height:14px;width:100%}
+.matching-group .match-bank{gap:3px}
+.matching-group .match-item{min-height:34px;padding:5px 7px;font-size:12.5px;line-height:1.22;border-radius:5px;align-items:center;gap:5px}
+.matching-group .match-item b{min-width:17px}
+.matching-group .match-help{display:none}
+/* Thin navy divider; transparent enlarged drag target for accurate mouse/touch resizing. */
+#examBody.split-review{column-gap:0!important}
+#examBody.split-review .review-resizer{width:3px;min-width:3px;max-width:3px;background:#102b50;border:0;border-radius:0;padding:0;overflow:visible}
+#examBody.split-review .review-resizer::before{content:none}
+#examBody.split-review .review-resizer::after{content:"";position:absolute;z-index:2;left:-7px;right:-7px;top:0;bottom:0;cursor:col-resize;background:transparent}
+#examBody.split-review .review-resizer:hover,#examBody.split-review .review-resizer.dragging{background:#174baf}
+#examBody.split-review .review-resizer:focus-visible{outline:2px solid #174baf;outline-offset:3px}
+#examBody.split-review .review-right-pane>.script-zone>h3{display:none}
+#examBody.split-review .review-right-pane>.script-zone{padding-top:0;margin-top:0;border-top:0}
+#examBody.split-review .review-right-pane{padding-top:8px}
+@media(max-width:1000px) and (min-width:721px){.matching-group .match-layout{gap:8px}.matching-group .match-row{grid-template-columns:20px minmax(75px,.85fr) minmax(110px,1fr)}.matching-group .match-item{font-size:12px}}
+@media(max-width:720px){.matching-group .match-layout{grid-template-columns:1fr}.matching-group .match-row{grid-template-columns:22px minmax(85px,.85fr) minmax(135px,1fr)}.matching-group .match-answer-column{order:2}}
 </style></head><body><header class="header"><div class="container"><a class="brand" href="../../../../"><img alt="Ms Kim icon" class="brand-icon" src="../../../../assets/kim-symbol.png"/><img alt="Anh ngữ Ms. Kim" class="brand-wordmark" src="../../../../assets/kim-wordmark.png"/></a></div></header><main class="exam"><a class="back" href="../">← No. 20</a><section class="panel" id="introPanel"><h1>General Training · Listening · No. 20 · Test 2</h1><p class="small">40 questions · 4 parts · 28-minute audio + 2 minutes to check answers · Automatic submission</p><div class="info"><label>Student name<input autocomplete="name" id="studentName" placeholder="Full name" readonly="" required="" type="text"/></label><label>Grade<select disabled="" id="grade" required=""><option disabled="" selected="" value="">Select grade</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>IELTS</option><option>Other</option></select></label></div><p class="small" id="firebaseAccountStatus" role="status">Đang kiểm tra tài khoản Firebase...</p><p class="small">Press START TEST to start the audio and countdown. During the test, seeking is locked. After submission you can replay and skip ±10 seconds.</p><button class="btn" id="startBtn">START TEST ▶</button><p class="small" id="startMsg" role="status"></p></section>
 <div aria-label="Exam audio and timer" class="sticky"><div class="line"><div class="player"><button hidden="" id="minus10" title="Back 10 seconds" type="button">−10s</button><button aria-label="Play or pause" class="playbtn" disabled="" id="play" type="button">▶</button><button hidden="" id="plus10" title="Forward 10 seconds" type="button">+10s</button><span class="clock" id="clock">00:00 / 28:10</span><input aria-label="Audio progress" class="seek" disabled="" id="seek" max="1690.416" min="0" type="range" value="0"/><div class="volume-wrap"><button aria-label="Volume control" id="mute" type="button">🔊</button><div class="volume-pop"><label class="sr-only" for="volume">Volume</label><input aria-label="Audio volume" class="volume-slider" id="volume" max="1" min="0" step="0.05" type="range" value="1"/></div></div></div><div><div class="count" id="count">30:10</div><div class="timer-caption" id="timerCaption">Audio + 02:00 checking time</div></div></div><audio id="audio" preload="metadata" src="audio.mp3"></audio></div>
 <section class="panel" id="resultSummary" style="display:none"><h2>LISTENING RESULT</h2><div id="reviewNotice">Review mode: Compare your answers with evidence in the full English script.</div><div class="actions" style="display:none"><button class="btn red" id="submitBtn" type="button">SUBMIT RESULT</button></div><p class="small" id="submitStatus" role="status"></p><div id="firebaseHistoryBar" style="display:none;margin:10px 0 14px;gap:12px;align-items:center;flex-wrap:wrap"><a class="btn secondary" href="../../../../student/">VIEW MY TEST HISTORY</a><button class="btn secondary" id="retryFirebaseSave" style="display:none" type="button">RETRY SAVING (SAME ATTEMPT)</button></div><div id="finalResult"></div><div class="review" id="reviewPanel"></div></section><div id="examBody">
@@ -231,7 +258,7 @@ const $=id=>document.getElementById(id);
 $('startBtn').disabled=true;
 const audio=$('audio');const answers={},flags=new Set();let part=1,started=false,submitted=false,seekAllowed=false,startAt=0,deadline=0,reviewAt=0,ticker=null,latest=0,correcting=false;
 function fmt(x){x=Math.max(0,Math.floor(x));return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
-function setPart(i){part=i;document.querySelectorAll('.exam-part').forEach(el=>el.classList.toggle('active',Number(el.dataset.part)===part));document.querySelectorAll('.nav-part').forEach(el=>el.classList.toggle('nav-part-current',Number(el.dataset.navpart)===part));if(started){if(submitted&&document.getElementById('examBody').classList.contains('split-review'))renderSplitPart(i);else window.scrollTo({top:document.getElementById('examBody').getBoundingClientRect().top+window.scrollY-98,behavior:'smooth'})}}
+function setPart(i){part=i;document.querySelectorAll('.exam-part').forEach(el=>el.classList.toggle('active',Number(el.dataset.part)===part));document.querySelectorAll('.nav-part').forEach(el=>el.classList.toggle('nav-part-current',Number(el.dataset.navpart)===part));if(started){if(submitted&&document.getElementById('examBody').classList.contains('split-review')){const current=splitLeft?.querySelector(':scope > .exam-part');if(current?.dataset.part!==String(i))renderSplitPart(i);}else window.scrollTo({top:document.getElementById('examBody').getBoundingClientRect().top+window.scrollY-98,behavior:'smooth'})}}
 document.querySelectorAll('[data-part]').forEach(b=>{if(b.tagName==='BUTTON')b.addEventListener('click',()=>setPart(Number(b.dataset.part)))});
 function navUpdate(){for(let n=1;n<=40;n++){let b=document.querySelector('[data-navq="'+n+'"]');if(!b)continue;b.classList.toggle('answered',String(answers[n]||'').trim()!=='');b.classList.toggle('flagged',flags.has(n));b.title=flags.has(n)?'Remove review flag for question '+n:'Mark question '+n+' for review';b.setAttribute('aria-pressed',String(flags.has(n)))}for(let p=1;p<=4;p++){let done=0;for(let n=(p-1)*10+1;n<=p*10;n++)if(String(answers[n]||'').trim())done++;document.querySelector('[data-navpart="'+p+'"] .nav-part-heading').textContent='Part '+p}}
 document.querySelectorAll('[data-navq]').forEach(b=>b.addEventListener('click',()=>{if(submitted){goToEvidence(Number(b.dataset.navq));return;}const n=Number(b.dataset.navq);flags.has(n)?flags.delete(n):flags.add(n);navUpdate();setPart(Math.ceil(n/10));requestAnimationFrame(()=>{const target=document.getElementById('q'+n)||document.querySelector('[data-q="'+n+'"]');target?.scrollIntoView({behavior:'smooth',block:'center'})})}));
@@ -261,7 +288,7 @@ function buildMatch(partNum){
    item.addEventListener('dragstart',e=>{if(submitted){e.preventDefault();return;}e.dataTransfer.setData('text/plain',String(partNum)+':'+letter);e.dataTransfer.effectAllowed='move';});bank.append(item);
  });
  Object.entries(obj.questions).forEach(([num,label])=>{
-   const n=Number(num),row=document.createElement('div');row.className='match-row';row.id='q'+n;row.innerHTML='<span class="match-num">'+n+'</span><span class="match-prompt"></span><div class="match-slot" role="button" tabindex="0" data-match-slot="'+n+'">Drop / tap</div>';
+   const n=Number(num),row=document.createElement('div');row.className='match-row';row.id='q'+n;row.innerHTML='<span class="match-num">'+n+'</span><span class="match-prompt"></span><div class="match-slot" role="button" tabindex="0" data-match-slot="'+n+'" aria-label="Select an answer for question '+n+'"></div>';
    row.querySelector('.match-prompt').textContent=label;const slot=row.querySelector('.match-slot');
    slot.addEventListener('click',()=>{if(submitted){goToEvidence(n);return;}if(chosenMatch[partNum])assignMatch(partNum,n,chosenMatch[partNum]);else if(answers[n])assignMatch(partNum,n,'')});
    slot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();slot.click()}});
@@ -280,7 +307,7 @@ function assignMatch(p,n,letter){
 function updateMatchBank(p){
  const obj=MATCH[p],root=$('match-part'+p),used=new Set(Object.keys(obj.questions).map(n=>answers[n]).filter(Boolean));
  root.querySelectorAll('.match-item').forEach(b=>{const isUsed=used.has(b.dataset.letter);b.classList.toggle('used',isUsed);b.classList.toggle('chosen',chosenMatch[p]===b.dataset.letter);b.disabled=isUsed&&!submitted;});
- root.querySelectorAll('.match-slot').forEach(el=>{let val=String(answers[el.dataset.matchSlot]||'');el.textContent=val?(val+' · '+(obj.options['ABCDEFGHI'.indexOf(val)]||'')):'Drop / tap';el.classList.toggle('filled',!!val);});
+ root.querySelectorAll('.match-slot').forEach(el=>{let val=String(answers[el.dataset.matchSlot]||'');el.textContent=val?(val+' · '+(obj.options['ABCDEFGHI'.indexOf(val)]||'')):'';el.classList.toggle('filled',!!val);});
 }
 function syncMatchUI(){updateMatchBank(2);updateMatchBank(3)}
 function clearMatchUI(){chosenMatch[2]=chosenMatch[3]=null;syncMatchUI();document.querySelectorAll('.match-slot').forEach(el=>{el.classList.remove('review-input-good','review-input-bad');el.removeAttribute('title')})}
@@ -327,7 +354,7 @@ function enableSplitReview(){
  splitLeft=document.createElement('section');splitLeft.className='review-left-pane';
  splitRight=document.createElement('section');splitRight.className='review-right-pane';
  const lt=document.createElement('div');lt.className='review-pane-title';lt.textContent='QUESTIONS · Your answers';splitLeft.append(lt);
- const rt=document.createElement('div');rt.className='review-pane-title';rt.textContent='FULL ENGLISH LISTENING SCRIPT';splitRight.append(rt);
+ // Full English script displays directly, without a redundant title.
  // Keep original Part DOM in a hidden holder so part switches remain simple and isolated.
  const storage=document.createElement('div');storage.id='splitStorage';storage.style.display='none';
  Array.from(body.querySelectorAll(':scope > .exam-part')).forEach(el=>{splitCache[el.dataset.part]=el;storage.append(el)});
@@ -337,6 +364,8 @@ function enableSplitReview(){
 }
 function renderSplitPart(p){
  if(!splitLeft||!splitRight)return;
+ // Evidence clicks within the active Part must not reset either panel's scroll position.
+ if(splitLeft.querySelector(':scope > .exam-part')?.dataset.part===String(p))return;
  for(const pp of Object.keys(splitCache)){
   const section=splitCache[pp];if(!section)return;
   if(section.parentElement===splitLeft||section.parentElement===splitRight)document.getElementById('splitStorage').append(section);
