@@ -165,10 +165,11 @@ const FIREBASE_TEST_ID='gt-no20-test1-listening';
 const firebaseGate={user:null,profile:null,status:'loading'};let currentSubmissionId=null;let submissionPending=null;
 window.kimAuthReady=function(user,profile){firebaseGate.user=user;firebaseGate.profile=profile;firebaseGate.status='ready';$('studentName').value=profile.name||profile.username||'Student';$('grade').value=profile.grade||'Other';$('firebaseAccountStatus').textContent='✓ Logged in as @'+(profile.username||user.email||'student')+' · '+(profile.grade||'');$('startBtn').disabled=false;};
 window.kimAuthDenied=function(message){firebaseGate.user=null;firebaseGate.profile=null;firebaseGate.status='denied';$('startBtn').disabled=true;$('firebaseAccountStatus').innerHTML='';$('firebaseAccountStatus').textContent=message+' ';let a=document.createElement('a');a.href='../../../../portal/';a.textContent='STUDENT LOGIN';$('firebaseAccountStatus').append(a);};
-$('startBtn').disabled=true;
 const WEB_RESULTS_URL='https://script.google.com/macros/s/AKfycbxNZI7NGT6KW-5L9rIrjXQHZJLxLuAeXzTICfrSPQFAIpy5pQ7Ce1s78b5wNRKre3XH/exec';
 const DURATION_FALLBACK=1941.185306;const TOTAL_MS=Math.round((DURATION_FALLBACK+120)*1000);
-const $=id=>document.getElementById(id);const audio=$('audio');const answers={},flags=new Set();let part=1,started=false,submitted=false,seekAllowed=false,startAt=0,deadline=0,reviewAt=0,ticker=null,latest=0,correcting=false;
+const $=id=>document.getElementById(id);
+$('startBtn').disabled=true;
+const audio=$('audio');const answers={},flags=new Set();let part=1,started=false,submitted=false,seekAllowed=false,startAt=0,deadline=0,reviewAt=0,ticker=null,latest=0,correcting=false;
 function fmt(x){x=Math.max(0,Math.floor(x));return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
 function setPart(i){part=i;document.querySelectorAll('.exam-part').forEach(el=>el.classList.toggle('active',Number(el.dataset.part)===part));document.querySelectorAll('.nav-part').forEach(el=>el.classList.toggle('nav-part-current',Number(el.dataset.navpart)===part));if(started)window.scrollTo({top:document.getElementById('examBody').getBoundingClientRect().top+window.scrollY-98,behavior:'smooth'})}
 document.querySelectorAll('[data-part]').forEach(b=>{if(b.tagName==='BUTTON')b.addEventListener('click',()=>setPart(Number(b.dataset.part)))});
