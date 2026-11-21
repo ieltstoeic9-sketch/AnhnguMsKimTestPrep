@@ -1,4 +1,79 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="IELTS Academic and General Training practice tests – Anh ngữ Ms. Kim"><title>IELTS Practice Tests | Anh ngữ Ms. Kim</title><link rel="stylesheet" href="assets/style.css"></head>
-<body><header class="header"><div class="container"><a class="brand" href="./" aria-label="Anh ngữ Ms. Kim home"><img class="brand-icon" src="assets/kim-symbol.png" alt="Ms. Kim logo"><img class="brand-wordmark" src="assets/kim-wordmark.png" alt="Anh ngữ Ms. Kim – Key to IELTS Mastery"></a><div class="header-right">IELTS PRACTICE PLATFORM</div></div></header>
-<main class="main"><div class="container"><section class="hero"><span class="eyebrow">ANH NGỮ MS. KIM</span><h1>IELTS PRACTICE TESTS</h1><p>Choose your IELTS test type to get started.</p></section><nav class="choice-grid" aria-label="IELTS test types"><a class="choice" href="academic/"><span class="circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 10 10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/><path d="M22 10v6"/></svg></span><h2>IELTS ACADEMIC</h2><p>Listening · Reading · Writing · Speaking</p><span class="arrow">EXPLORE TESTS →</span></a><a class="choice general" href="general-training/"><span class="circle"><svg width="33" height="33" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v17c0-2-1-3-4-3H3Z"/><path d="M21 18V4a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v17c0-2 1-3 4-3h5Z"/></svg></span><h2>IELTS GENERAL TRAINING</h2><p>Listening · Reading · Writing · Speaking</p><span class="arrow">EXPLORE TESTS →</span></a></nav></div></main><footer class="foot">© 2026 Anh ngữ Ms. Kim · Key to IELTS Mastery</footer></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="IELTS Academic and General Training practice tests – Anh ngữ Ms. Kim"><title>IELTS Practice Tests | Anh ngữ Ms. Kim</title><link rel="stylesheet" href="assets/style.css"><style>
+/* Homepage auth gate; existing branding/layout styles are unchanged. */
+body.auth-pending main, body.auth-pending footer, body.auth-pending .header-right {display:none!important}
+#authGate {padding:32px 18px;text-align:center;color:#102b50;font:600 16px Aptos,"Segoe UI",Arial,sans-serif}
+#authGate a {color:#be263b;margin-left:10px}
+body:not(.auth-pending) #authGate {display:none}
+#accountArea {display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+#accountArea a {font-size:13px;text-decoration:none;color:#102b50;font-weight:700}
+#accountArea button {background:#102b50;color:white;border:0;border-radius:8px;padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer}
+#accountArea .account-label {color:#5b6c82;font-size:13px;font-weight:600}
+@media(max-width:700px){#accountArea{justify-content:center;margin:7px auto}}
+</style></head>
+<body class="auth-pending"><div id="authGate" role="status" aria-live="polite">Đang kiểm tra tài khoản Firebase… <a href="portal/">Student Login</a></div><header class="header"><div class="container"><a class="brand" href="./" aria-label="Anh ngữ Ms. Kim home"><img class="brand-icon" src="assets/kim-symbol.png" alt="Ms. Kim logo"><img class="brand-wordmark" src="assets/kim-wordmark.png" alt="Anh ngữ Ms. Kim – Key to IELTS Mastery"></a><div class="header-right" id="accountArea" aria-label="Tài khoản">IELTS PRACTICE PLATFORM</div></div></header>
+<main class="main"><div class="container"><section class="hero"><span class="eyebrow">ANH NGỮ MS. KIM</span><h1>IELTS PRACTICE TESTS</h1><p>Choose your IELTS test type to get started.</p></section><nav class="choice-grid" aria-label="IELTS test types"><a class="choice" href="academic/"><span class="circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 10 10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/><path d="M22 10v6"/></svg></span><h2>IELTS ACADEMIC</h2><p>Listening · Reading · Writing · Speaking</p><span class="arrow">EXPLORE TESTS →</span></a><a class="choice general" href="general-training/"><span class="circle"><svg width="33" height="33" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v17c0-2-1-3-4-3H3Z"/><path d="M21 18V4a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v17c0-2 1-3 4-3h5Z"/></svg></span><h2>IELTS GENERAL TRAINING</h2><p>Listening · Reading · Writing · Speaking</p><span class="arrow">EXPLORE TESTS →</span></a></nav></div></main><footer class="foot">© 2026 Anh ngữ Ms. Kim · Key to IELTS Mastery</footer><script type="module">
+import {auth, roleFor, db} from './shared/firebase.js';
+import {onAuthStateChanged, signOut} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+import {doc, getDoc} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+const gate = document.getElementById('authGate');
+const area = document.getElementById('accountArea');
+let handled = false;
+function showError() {
+  gate.innerHTML = '';
+  gate.append(document.createTextNode('Không thể kiểm tra đăng nhập. Hãy kiểm tra kết nối hoặc '));
+  const link = document.createElement('a');
+  link.href = 'portal/';
+  link.textContent = 'mở Student Login';
+  gate.append(link);
+}
+onAuthStateChanged(auth, async (user) => {
+  if (handled) return;
+  if (!user) { handled = true; location.replace('portal/'); return; }
+  try {
+    const role = await roleFor(user);
+    if (role !== 'student' && role !== 'admin') {
+      handled = true;
+      await signOut(auth);
+      location.replace('portal/');
+      return;
+    }
+    handled = true;
+    area.replaceChildren();
+    if (role === 'student') {
+      const snap = await getDoc(doc(db, 'students', user.uid));
+      const profile = snap.data() || {};
+      const label = document.createElement('span');
+      label.className = 'account-label';
+      label.textContent = '✓ @' + (profile.username || 'student');
+      area.append(label);
+    } else {
+      const label = document.createElement('span');
+      label.className = 'account-label';
+      label.textContent = '✓ Admin';
+      area.append(label);
+    }
+    const dashboard = document.createElement('a');
+    dashboard.href = role === 'admin' ? 'admin/' : 'student/';
+    dashboard.textContent = role === 'admin' ? 'TEACHER DASHBOARD' : 'MY TEST HISTORY';
+    area.append(dashboard);
+    const logout = document.createElement('button');
+    logout.type = 'button';
+    logout.textContent = 'LOG OUT';
+    logout.addEventListener('click', async () => {
+      logout.disabled = true;
+      try { await signOut(auth); location.replace('portal/'); }
+      catch (error) { logout.disabled = false; alert('Đăng xuất chưa thành công. Thử lại.'); }
+    });
+    area.append(logout);
+    document.body.classList.remove('auth-pending');
+  } catch (error) {
+    console.error('Homepage Firebase account check failed:', error);
+    showError();
+  }
+}, error => {
+  console.error('Homepage Firebase session failed:', error);
+  showError();
+});
+</script></body></html>
