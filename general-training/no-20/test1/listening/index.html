@@ -279,7 +279,7 @@ window.kimOpenSavedAttempt=function(record){
   const score=Number(record.score)||0;
   const bandSaved=record.band==null?'—':String(record.band);
   $('finalResult').innerHTML='<div class="score-board"><div class="score-head"><span class="score-heading">SAVED LISTENING RESULT</span><span class="score-submitted">✓ Saved attempt</span></div><div class="score-grid"><div class="score-tile"><div class="score-value">'+score+'/40</div><div class="score-label">Score</div></div><div class="score-tile"><div class="score-value">'+Math.round(score/40*100)+'%</div><div class="score-label">Accuracy</div></div><div class="score-tile"><div class="score-value band-value">'+escapeHTML(bandSaved)+'</div><div class="score-label">IELTS Band</div></div></div></div>';
-  $('submitStatus').textContent='Review of a result previously saved in Firestore. No new submission is being sent.';
+  $('submitStatus').textContent=''; // No technical notice when reviewing an already-saved attempt.
   $('studentName').value=String(record.studentName||firebaseGate.profile?.name||'');
   $('grade').value=String(record.grade||firebaseGate.profile?.grade||'IELTS');
   navUpdate();paintFeedback();answerReview();setPart(1);
