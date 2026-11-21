@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Firebase Results · Submission Test</title>
+<style>body{font:16px/1.55 system-ui,Arial,sans-serif;background:#f5f7fb;color:#132c4f;margin:0;padding:30px 14px}.card{max-width:700px;margin:auto;background:white;border:1px solid #dce5f0;border-top:4px solid #102b50;border-radius:14px;padding:25px}h1{font-size:24px;margin-top:0}button{background:#102b50;color:#fff;border:0;border-radius:7px;padding:12px 18px;font-weight:700;cursor:pointer}button:disabled{background:#a2aaba}a{color:#164d9c}#status{white-space:pre-wrap;background:#f1f5fa;padding:14px;border-radius:7px}small{color:#56677c}.warning{border-left:4px solid #c93b45;background:#fff6f7;padding:12px;margin:18px 0}</style></head>
+<body><main class="card"><h1>Firebase Results — Thử nộp bài</h1><p>Trang thử nghiệm riêng của Anh ngữ Ms. Kim. <strong>Không phải bài thi thật.</strong></p><p id="identity">Đang kiểm tra tài khoản đăng nhập...</p><div class="warning"><strong>Lưu ý:</strong> Nút dưới đây sẽ gửi một lượt thi thử <strong>0/40</strong> của GT No.20 Test 1 vào Firestore nếu xác thực và lưu thành công. Kết quả thử sẽ xuất hiện trong lịch sử của học sinh. Chỉ sử dụng tài khoản <strong>test003</strong> và xóa trang này khỏi GitHub sau khi kiểm thử.</div><button id="submit" disabled>GỬI BÀI THỬ 0/40</button><p id="status" role="status">Chưa gửi.</p><p><a href="../student/">Mở Student Dashboard</a> · <a href="../portal/">Student Login</a></p><small>Do hạn chế chuyển hướng của Apps Script, trang thử không đọc trực tiếp phản hồi POST. Hãy kiểm tra Student Dashboard để xác nhận lưu thành công. Không gửi ID token hoặc mật khẩu cho người khác.</small></main>
+<iframe name="firebaseResultFrame" id="firebaseResultFrame" style="display:none" title="Submission destination"></iframe>
+<script type="module">
+import {auth,roleFor} from '../shared/firebase.js';
+import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+const endpoint='https://script.google.com/macros/s/AKfycbzBlbma_M2UlfdYVAFr9LMA4Av91VqD1PNPRK527UdzTN2BLzfojdxUEB-ERs6zeJ9eAQ/exec';
+const button=document.getElementById('submit'), info=document.getElementById('identity'), status=document.getElementById('status');
+let currentUser=null; let sent=false;
+onAuthStateChanged(auth,async user=>{
+  currentUser=null;button.disabled=true;
+  if(!user){info.textContent='Bạn chưa đăng nhập. Hãy vào Student Login trước.';return;}
+  try{
+    const role=await roleFor(user);
+    if(role!=='student'){info.textContent='Tài khoản hiện tại không phải tài khoản học sinh đang hoạt động.';return;}
+    // Restrict trial to the verified test003 UID, to avoid test rows on other students.
+    if(user.uid!=='LrGHNdnMd7T0qJYOp5u8VpGMMr02'){
+      info.textContent='Bạn đang đăng nhập học sinh khác. Vui lòng dùng test003 cho thử nghiệm này.';return;
+    }
+    currentUser=user;info.textContent='Đã xác nhận tài khoản test003. Bạn có thể gửi một bài thử 0/40.';
+    if(!sent)button.disabled=false;
+  }catch(e){info.textContent='Không xác minh được tài khoản: '+(e.message||String(e));}
+});
+button.addEventListener('click',async()=>{
+  if(!currentUser||sent)return;
+  if(!confirm('Gửi một lượt thi thử 0/40 của test003 vào Firestore?'))return;
+  button.disabled=true;
+  try{
+    const idToken=await currentUser.getIdToken();
+    const submissionId='trial_'+crypto.randomUUID().replace(/-/g,'');
+    const payload={idToken,testId:'gt-no20-test1-listening',submissionId,answers:[]};
+    const form=document.createElement('form');form.method='POST';form.action=endpoint;form.target='firebaseResultFrame';form.style.display='none';
+    const input=document.createElement('input');input.type='hidden';input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(form);
+    form.submit();form.remove();sent=true;
+    status.textContent='Đã gửi yêu cầu thử. Mở Student Dashboard và tải lại trang để xem kết quả. Nếu không thấy lượt thi, kiểm tra Apps Script → Executions. Không nhấn gửi lại từ trang này.';
+  }catch(e){status.textContent='Không gửi được: '+(e.message||String(e));button.disabled=false;}
+});
+</script></body></html>
