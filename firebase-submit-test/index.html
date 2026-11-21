@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Firebase Results · Submission Test</title>
 <style>body{font:16px/1.55 system-ui,Arial,sans-serif;background:#f5f7fb;color:#132c4f;margin:0;padding:30px 14px}.card{max-width:700px;margin:auto;background:white;border:1px solid #dce5f0;border-top:4px solid #102b50;border-radius:14px;padding:25px}h1{font-size:24px;margin-top:0}button{background:#102b50;color:#fff;border:0;border-radius:7px;padding:12px 18px;font-weight:700;cursor:pointer}button:disabled{background:#a2aaba}a{color:#164d9c}#status{white-space:pre-wrap;background:#f1f5fa;padding:14px;border-radius:7px}small{color:#56677c}.warning{border-left:4px solid #c93b45;background:#fff6f7;padding:12px;margin:18px 0}</style></head>
-<body><main class="card"><h1>Firebase Results — Thử nộp bài</h1><p>Trang thử nghiệm riêng của Anh ngữ Ms. Kim. <strong>Không phải bài thi thật.</strong></p><p id="identity">Đang kiểm tra tài khoản đăng nhập...</p><div class="warning"><strong>Lưu ý:</strong> Nút dưới đây sẽ gửi một lượt thi thử <strong>0/40</strong> của GT No.20 Test 1 vào Firestore nếu xác thực và lưu thành công. Kết quả thử sẽ xuất hiện trong lịch sử của học sinh. Chỉ sử dụng tài khoản <strong>test003</strong> và xóa trang này khỏi GitHub sau khi kiểm thử.</div><button id="submit" disabled>GỬI BÀI THỬ 0/40</button><p id="status" role="status">Chưa gửi.</p><p><a href="../student/">Mở Student Dashboard</a> · <a href="../portal/">Student Login</a></p><small>Do hạn chế chuyển hướng của Apps Script, trang thử không đọc trực tiếp phản hồi POST. Hãy kiểm tra Student Dashboard để xác nhận lưu thành công. Không gửi ID token hoặc mật khẩu cho người khác.</small></main>
+<body><main class="card"><h1>Firebase Results — Thử nộp bài</h1><p>Trang thử nghiệm riêng của Anh ngữ Ms. Kim. <strong>Không phải bài thi thật.</strong></p><p id="identity">Đang kiểm tra tài khoản đăng nhập...</p><p id="diagnostic" style="background:#eef3fa;padding:12px;border-radius:8px;white-space:pre-wrap">Đang kiểm tra phiên Firebase...</p><p><button id="switchAccount" type="button" style="background:#e8eef7;color:#102b50">ĐĂNG XUẤT / ĐỔI TÀI KHOẢN</button></p><div class="warning"><strong>Lưu ý:</strong> Nút dưới đây sẽ gửi một lượt thi thử <strong>0/40</strong> của GT No.20 Test 1 vào Firestore nếu xác thực và lưu thành công. Kết quả thử sẽ xuất hiện trong lịch sử của học sinh. Chỉ sử dụng tài khoản <strong>test003</strong> và xóa trang này khỏi GitHub sau khi kiểm thử.</div><button id="submit" disabled>GỬI BÀI THỬ 0/40</button><p id="status" role="status">Chưa gửi.</p><p><a href="../student/">Mở Student Dashboard</a> · <a href="../portal/">Student Login</a></p><small>Do hạn chế chuyển hướng của Apps Script, trang thử không đọc trực tiếp phản hồi POST. Hãy kiểm tra Student Dashboard để xác nhận lưu thành công. Không gửi ID token hoặc mật khẩu cho người khác.</small></main>
 <iframe name="firebaseResultFrame" id="firebaseResultFrame" style="display:none" title="Submission destination"></iframe>
 <script type="module">
 import {auth,roleFor} from '../shared/firebase.js';
-import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+import {onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 const endpoint='https://script.google.com/macros/s/AKfycbzBlbma_M2UlfdYVAFr9LMA4Av91VqD1PNPRK527UdzTN2BLzfojdxUEB-ERs6zeJ9eAQ/exec';
-const button=document.getElementById('submit'), info=document.getElementById('identity'), status=document.getElementById('status');
+const button=document.getElementById('submit'), info=document.getElementById('identity'), status=document.getElementById('status'), diag=document.getElementById('diagnostic');
+document.getElementById('switchAccount').addEventListener('click',async()=>{try{await signOut(auth);location.href='../portal/';}catch(e){diag.textContent='Không đăng xuất được: '+(e.code||e.message||'Unknown error')}});
 let currentUser=null; let sent=false;
 onAuthStateChanged(auth,async user=>{
   currentUser=null;button.disabled=true;
-  if(!user){info.textContent='Bạn chưa đăng nhập. Hãy vào Student Login trước.';return;}
+  if(!user){info.textContent='Bạn chưa đăng nhập. Hãy vào Student Login trước.';diag.textContent='Phiên Firebase: chưa đăng nhập';return;}
+  diag.textContent='Firebase email: '+(user.email||'(không có)')+'\nUID: '+user.uid+'\nĐang kiểm tra quyền...';
   try{
     const role=await roleFor(user);
-    if(role!=='student'){info.textContent='Tài khoản hiện tại không phải tài khoản học sinh đang hoạt động.';return;}
+    diag.textContent+='\nQuyền (roleFor): '+role;
+    if(role!=='student'){info.textContent='Tài khoản hiện tại không phải tài khoản học sinh đang hoạt động. Nhấn ĐĂNG XUẤT / ĐỔI TÀI KHOẢN rồi đăng nhập test003.';return;}
     // Restrict trial to the verified test003 UID, to avoid test rows on other students.
     if(user.uid!=='LrGHNdnMd7T0qJYOp5u8VpGMMr02'){
       info.textContent='Bạn đang đăng nhập học sinh khác. Vui lòng dùng test003 cho thử nghiệm này.';return;
     }
     currentUser=user;info.textContent='Đã xác nhận tài khoản test003. Bạn có thể gửi một bài thử 0/40.';
     if(!sent)button.disabled=false;
-  }catch(e){info.textContent='Không xác minh được tài khoản: '+(e.message||String(e));}
+  }catch(e){info.textContent='Không xác minh được tài khoản: '+(e.message||String(e));diag.textContent+='\nLỗi: '+(e.code||e.message||'Unknown error');}
 });
 button.addEventListener('click',async()=>{
   if(!currentUser||sent)return;
