@@ -6,10 +6,12 @@ onAuthStateChanged(auth,async user=>{if(!user){location.replace('../portal/');re
     const td=document.createElement('td');td.textContent=v;tr.append(td)
   });
   const reviewCell=document.createElement('td');
-  const match=/^gt-no20-test([1-4])-listening$/.exec(String(a.testId||''));
-  if(match){
+  const id=String(a.testId||'');
+  const match=/^gt-no20-test([1-4])-listening$/.exec(id);
+  const reading=id==='gt-no20-test1-reading';
+  if(match||reading){
     const action=document.createElement('a');
-    action.href='../general-training/no-20/test'+match[1]+'/listening/?review='+encodeURIComponent(a.id);
+    action.href=reading?'../general-training/no-20/test1/reading/?review='+encodeURIComponent(a.id):'../general-training/no-20/test'+match[1]+'/listening/?review='+encodeURIComponent(a.id);
     action.className='btn';
     action.textContent='VIEW EVIDENCE';
     action.setAttribute('aria-label','View answers and evidence for '+(a.test||'test'));
