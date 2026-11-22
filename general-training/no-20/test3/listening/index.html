@@ -252,6 +252,44 @@ body.review-resizing,body.review-resizing *{cursor:col-resize!important;user-sel
 .map-grid .map-row-label.review-input-good{background:#ddfae8}.map-grid .map-row-label.review-input-bad{background:#ffebee}
 @media(max-width:760px){.map-picture img{max-height:300px}.map-quiz{grid-template-columns:1fr}.rental-table{font-size:14px}.rental-table th,.rental-table td{padding:10px 7px}}
 @media(max-width:480px){.map-grid{font-size:11px;grid-template-columns:minmax(104px,1.55fr) repeat(7,minmax(25px,1fr));min-width:330px}}
+
+/* Test 3 / future standard: fluid Part 1 review. The table must obey
+   the LEFT pane's live width as the navy separator is dragged. */
+#examBody.split-review .review-left-pane,
+#examBody.split-review .review-right-pane,
+#examBody.split-review .exam-part,
+#examBody.split-review .tablewrap { min-width:0; max-width:100%; box-sizing:border-box; }
+#examBody.split-review .tablewrap { width:100%; overflow-x:visible; }
+#examBody.split-review .rental-table {
+  width:100%; min-width:0!important; max-width:100%;
+  table-layout:fixed; border-collapse:collapse;
+  overflow-wrap:anywhere; word-break:normal;
+  font-size:clamp(12px,1.05vw,15px);
+}
+#examBody.split-review .rental-table caption {
+  max-width:100%; box-sizing:border-box; overflow-wrap:anywhere;
+  font-size:clamp(15px,1.3vw,20px);
+}
+#examBody.split-review .rental-table th,
+#examBody.split-review .rental-table td {
+  min-width:0; max-width:0; padding:clamp(4px,.7vw,11px);
+  overflow-wrap:anywhere; hyphens:auto; vertical-align:top;
+}
+#examBody.split-review .rental-table td p {margin:10px 0;}
+#examBody.split-review .rental-table .lineinput {
+  display:inline-flex; max-width:100%; min-width:0; flex-wrap:wrap;
+  white-space:normal; box-sizing:border-box; gap:4px; margin:2px 0;
+  vertical-align:middle;
+}
+#examBody.split-review .rental-table .lineinput input {
+  box-sizing:border-box; flex:1 1 68px; width:min(110px,100%);
+  min-width:0!important; max-width:100%!important; height:32px;
+  padding:3px 5px; font-size:clamp(12px,1vw,15px);
+}
+#examBody.split-review .rental-table .lineinput b {flex:0 0 auto;}
+#examBody.split-review .review-right-pane .script-line {
+  white-space:normal; overflow-wrap:break-word; max-width:100%;
+}
 </style></head><body><header class="header"><div class="container"><a class="brand" href="../../../../"><img alt="Ms Kim icon" class="brand-icon" src="../../../../assets/kim-symbol.png"/><img alt="Anh ngữ Ms. Kim" class="brand-wordmark" src="../../../../assets/kim-wordmark.png"/></a></div></header><main class="exam"><a class="back" href="../">← No. 20</a><section class="panel" id="introPanel"><h1>General Training · Listening · No. 20 · Test 3</h1><p class="small">40 questions · 4 parts · 29-minute audio + 2 minutes to check answers · Automatic submission</p><div class="info"><label>Student name<input autocomplete="name" id="studentName" placeholder="Full name" readonly="" required="" type="text"/></label><label>Grade<select disabled="" id="grade" required=""><option disabled="" selected="" value="">Select grade</option><option>Grade 6</option><option>Grade 7</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>IELTS</option><option>Other</option></select></label></div><p class="small" id="firebaseAccountStatus" role="status">Đang kiểm tra tài khoản Firebase...</p><p class="small">Press START TEST to start the audio and countdown. During the test, seeking is locked. After submission you can replay and skip ±10 seconds.</p><button class="btn" id="startBtn">START TEST ▶</button><p class="small" id="startMsg" role="status"></p></section>
 <div aria-label="Exam audio and timer" class="sticky"><div class="line"><div class="player"><button hidden="" id="minus10" title="Back 10 seconds" type="button">−10s</button><button aria-label="Play or pause" class="playbtn" disabled="" id="play" type="button">▶</button><button hidden="" id="plus10" title="Forward 10 seconds" type="button">+10s</button><span class="clock" id="clock">00:00 / 28:10</span><input aria-label="Audio progress" class="seek" disabled="" id="seek" max="1690.416" min="0" type="range" value="0"/><div class="volume-wrap"><button aria-label="Volume control" id="mute" type="button">🔊</button><div class="volume-pop"><label class="sr-only" for="volume">Volume</label><input aria-label="Audio volume" class="volume-slider" id="volume" max="1" min="0" step="0.05" type="range" value="1"/></div></div></div><div><div class="count" id="count">30:10</div><div class="timer-caption" id="timerCaption">Audio + 02:00 checking time</div></div></div><audio id="audio" preload="metadata" src="audio.mp3"></audio></div>
 <section class="panel" id="resultSummary" style="display:none"><h2>LISTENING RESULT</h2><div id="reviewNotice">Review mode: Compare your answers with evidence in the full English script.</div><div class="actions" style="display:none"><button class="btn red" id="submitBtn" type="button">SUBMIT RESULT</button></div><p class="small" id="submitStatus" role="status"></p><div id="firebaseHistoryBar" style="display:none;margin:10px 0 14px;gap:12px;align-items:center;flex-wrap:wrap"><a class="btn secondary" href="../../../../student/">VIEW MY TEST HISTORY</a><button class="btn secondary" id="retryFirebaseSave" style="display:none" type="button">RETRY SAVING (SAME ATTEMPT)</button></div><div id="finalResult"></div><div class="review" id="reviewPanel"></div></section><div id="examBody">
