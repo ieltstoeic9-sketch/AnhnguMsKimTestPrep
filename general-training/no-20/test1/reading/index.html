@@ -244,6 +244,37 @@ body.review-active.review-nav-open #workspace:fullscreen .question-nav{display:g
 /* Exam and Practice: fullscreen must never hide the section navigator. */
 body.reading-active:not(.review-active) #workspace:fullscreen .question-nav{display:grid!important;visibility:visible!important}
 @media(max-width:760px){body.review-active .review-score-line{font-size:11px}body.review-active .topline{gap:5px}body.review-active .review-tools button{font-size:10px;padding:4px 6px}body.review-active .pane{padding:10px;font-size:14px}}
+
+/* V15.10: Answer feedback in the question navigator. Blue = correct;
+   red outline = incorrect / unanswered. No grading information before Submit. */
+body.review-active .question-nav .nav-part-buttons button.review-correct-nav{
+  background:#e3f1ff!important;
+  border:1px solid #9dc8ed!important;
+  color:#173858!important;
+}
+body.review-active .question-nav .nav-part-buttons button.review-incorrect-nav{
+  background:#fff6f6!important;
+  border:2px solid #c92e35!important;
+  color:#173858!important;
+}
+/* In Practice Mode, the complete section navigator stays open without a toggle. */
+body.reading-active:not(.review-active) .question-nav,
+body.reading-active:not(.review-active) #workspace:fullscreen .question-nav{
+  display:grid!important;
+  visibility:visible!important;
+}
+
+/* V15.11 · Keep question navigation permanently visible after Submit,
+   including Review via My Test History and expanded fullscreen Review. */
+body.review-active .question-nav,
+body.review-active #workspace:fullscreen .question-nav {
+  display:grid!important;
+  visibility:visible!important;
+  flex-shrink:0;
+  max-height:clamp(110px,23dvh,190px);
+  overflow-y:auto;
+}
+body.review-active #reviewNavToggle{display:none!important}
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-20/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
 <main><section id="intro" class="intro"><h1>IELTS General Training Reading</h1><p class="sub">No. 20 · Test 1 · 40 questions · 3 sections</p><h2>Choose your test mode</h2><div class="choice"><label><input type="radio" name="mode" value="practice"> <b>Practice Mode</b><div class="sub">Unlimited time · No countdown</div></label><label><input type="radio" name="mode" value="exam"> <b>Exam Mode</b><div class="sub">60-minute countdown</div></label></div><p id="authStatus" class="meta">Checking your sign-in…</p><button id="start" disabled>START TEST ▶</button><button id="resume" class="secondary resume-control hidden" type="button">RESUME PREVIOUS TEST</button><p id="resumeInfo" class="meta hidden"></p></section>
@@ -358,9 +389,10 @@ function showSavedReviewRecord(record,attemptId){
   $('resultPanel').classList.remove('hidden');
   $('workspace').appendChild($('resultPanel'));
   document.body.classList.add('review-active');
-  document.body.classList.remove('review-nav-open','review-result-open');
+  document.body.classList.add('review-nav-open');
+  document.body.classList.remove('review-result-open');
   $('reviewTools').classList.remove('hidden');
-  $('reviewNavToggle').setAttribute('aria-expanded','false');
+  $('reviewNavToggle').setAttribute('aria-expanded','true');
   $('reviewResultToggle').setAttribute('aria-expanded','false');
   // Only show verified values from this saved Firestore attempt; never calculate a band client-side.
   $('resultScore').textContent=String(record.score??'—')+'/'+String(record.total??40);
@@ -729,7 +761,12 @@ function nav(){
       const buttons=[];
       for(let q=range[0];q<=range[1];q++){
         const marked=!!state.flags[q],answered=!!String(state.answers[q]||'').trim();
-        buttons.push('<button type="button" data-jump="'+q+'" title="Go to question '+q+'" class="'+(answered?'answered ':'')+(marked?'flagged ':'')+'" '+(activeQuestion===q?'aria-current="true"':'')+'>'+q+(marked?'<span class="nav-mark" aria-hidden="true">◆</span>':'')+'</button>');
+        // Results come only from the verified, saved Firestore attempt.
+        // Before submission, keep the existing answered/bookmarked states.
+        const graded=reviewRecord?.answers?.find(item=>Number(item.question)===q);
+        const resultClass=graded?(graded.isCorrect===true?'review-correct-nav ':'review-incorrect-nav '):'';
+        const resultLabel=graded?(graded.isCorrect===true?'Correct':'Incorrect or unanswered'):'';
+        buttons.push('<button type="button" data-jump="'+q+'" title="Go to question '+q+(resultLabel?' · '+resultLabel:'')+'" class="'+(answered?'answered ':'')+(marked?'flagged ':'')+resultClass+'" '+(activeQuestion===q?'aria-current="true"':'')+'>'+q+(marked?'<span class="nav-mark" aria-hidden="true">◆</span>':'')+'</button>');
       }
       // Section 3 has just one passage, so do not add a redundant passage label.
       return '<div class="nav-passage-group">'+(index<2?'<button type="button" class="nav-passage-label '+(state.section===index&&activeQuestion>=range[0]&&activeQuestion<=range[1]?'current':'')+'" data-passage-jump="'+range[0]+'" aria-label="Section '+(index+1)+', Passage '+(idx+1)+', questions '+range[0]+' to '+range[1]+'">Passage '+(idx+1)+'</button>':'')+'<div class="nav-part-buttons">'+buttons.join('')+'</div></div>';
@@ -789,10 +826,7 @@ $('reviewResultToggle').addEventListener('click',()=>{
   const opened=document.body.classList.toggle('review-result-open');
   $('reviewResultToggle').setAttribute('aria-expanded',String(opened));
 });
-$('reviewNavToggle').addEventListener('click',()=>{
-  const opened=document.body.classList.toggle('review-nav-open');
-  $('reviewNavToggle').setAttribute('aria-expanded',String(opened));
-});
+// Review navigation is always displayed. No hide/show toggle is needed.
 $('reviewFullscreenToggle').addEventListener('click',async()=>{
   if(!reviewRecord)return;
   try{
@@ -804,19 +838,11 @@ document.addEventListener('fullscreenchange',()=>{
   if(!reviewRecord)return;
   const expanded=document.fullscreenElement===$('workspace');
   $('reviewFullscreenToggle').textContent=expanded?'EXIT FULL SCREEN':'EXPAND REVIEW';
-  // On entering expanded Review, show navigation immediately. The QUESTIONS
-  // button can still collapse/reopen it whenever the student wishes.
-  document.body.classList.toggle('review-nav-open',expanded);
-  $('reviewNavToggle').setAttribute('aria-expanded',String(expanded));
+  // Keep navigation visible in both regular and expanded Review.
+  document.body.classList.add('review-nav-open');
+  $('reviewNavToggle').setAttribute('aria-expanded','true');
 });
-$('numbers').addEventListener('click',e=>{
-  // Keep the navigation visible in expanded Review while jumping between
-  // passages/questions. In regular Review it may collapse to save space.
-  if(reviewRecord&&document.fullscreenElement!==$('workspace')&&e.target.closest('[data-jump],[data-passage-jump],[data-section-jump]')){
-    document.body.classList.remove('review-nav-open');
-    $('reviewNavToggle').setAttribute('aria-expanded','false');
-  }
-});
+// Navigating between questions and passages no longer collapses the Review navigator.
 
 function clock(){
  if(!state.started||state.done)return;
