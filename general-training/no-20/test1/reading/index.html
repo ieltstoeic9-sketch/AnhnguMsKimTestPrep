@@ -78,7 +78,7 @@
 #right .question,#right .matching-matrix tbody tr,#right .note-answer{cursor:pointer}
 /* V10 result cards: align with the Listening saved-result summary */
 .result-panel{background:white;border:1px solid #d7e3f1;border-radius:16px;padding:24px;margin:12px 0 16px;max-width:none}
-.history-button{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:#eaf0f8;color:#102d52;text-decoration:none;font-weight:800;padding:12px 20px;min-height:47px}
+.history-button{display:inline-flex;align-items:center;gap:10px;justify-content:center;border-radius:10px;background:#eaf0f8;color:#102d52;text-decoration:none;font-weight:800;padding:12px 20px;min-height:47px}
 .history-button:hover,.history-button:focus-visible{background:#dce8f6;outline:2px solid #315f88;outline-offset:2px}
 .result-caption{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:14px 0 16px;color:#102d52;font-weight:800;font-size:15px}
 .saved-indicator{font-size:13px;color:#078454;font-weight:700}
@@ -88,17 +88,45 @@
 .result-tile span{font-size:13px;color:#587194;margin-top:2px}
 #resultBand.no-band{color:#d92743}
 @media(max-width:520px){.result-panel{padding:14px}.result-metrics{gap:6px}.result-tile{padding:10px 4px;min-height:92px}.result-tile strong{font-size:clamp(20px,6vw,30px)}.result-tile span{font-size:11px}.result-caption{font-size:12px}.saved-indicator{font-size:11px}}
+
+/* V13: ultra-fine draggable visual divider and independent scrollbars */
+.split{grid-template-columns:minmax(0,1fr) 4px minmax(0,1fr)}
+.divider{position:relative;background:transparent;cursor:col-resize;z-index:2}
+.divider::after{content:"";position:absolute;top:0;bottom:0;left:1px;width:2px;background:#173858;pointer-events:none}
+.divider::before{content:"";position:absolute;top:0;bottom:0;left:-4px;right:-4px}
+.pane{scrollbar-width:thin;scrollbar-color:#b7c1cb transparent}
+.pane::-webkit-scrollbar{width:2px;height:2px}
+.pane::-webkit-scrollbar-track{background:transparent}
+.pane::-webkit-scrollbar-thumb{background:#b7c1cb;border-radius:8px}
+.pane::-webkit-scrollbar-thumb:hover{background:#8193a5}
+/* Student keyword highlights are separate from verified Review evidence styling. */
+.student-keyword-highlight{background:#fff29a;color:inherit;border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.keyword-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 9px}
+.keyword-tools button{background:#f1f6fb;color:#173858;border:1px solid #c5d4e1;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:750}
+.keyword-tools button:hover,.keyword-tools button:focus-visible{background:#e3f1ff}
+.keyword-tools .keyword-help{color:#64748b;font-size:12px}
+/* Remove the default yellow status strip; reveal it only for real save/error messages. */
+#notice:empty{display:none}
+#notice{margin-top:8px}
+
+/* Contextual highlighting: shown only after selecting text, or clicking a yellow mark. */
+.floating-highlight{position:fixed;z-index:2000;max-width:calc(100vw - 20px);background:#173858;border:1px solid #315f88;border-radius:9px;box-shadow:0 7px 22px #17385835;padding:4px}
+.floating-highlight button{background:#173858;color:white;border:none;border-radius:6px;padding:6px 13px;font-size:13px;font-weight:750;white-space:nowrap}
+.floating-highlight button:hover,.floating-highlight button:focus-visible{background:#315f88}
+.student-keyword-highlight{cursor:pointer}
+.student-keyword-highlight:focus-visible{outline:2px solid #315f88;outline-offset:2px}
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-20/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
 <main><section id="intro" class="intro"><h1>IELTS General Training Reading</h1><p class="sub">No. 20 · Test 1 · 40 questions · 3 sections</p><h2>Choose your test mode</h2><div class="choice"><label><input type="radio" name="mode" value="practice"> <b>Practice Mode</b><div class="sub">Unlimited time · No countdown</div></label><label><input type="radio" name="mode" value="exam"> <b>Exam Mode</b><div class="sub">60-minute countdown</div></label></div><p class="status">Reading Submit V4 · Chấm điểm qua máy chủ. Exam Mode hiện mới giới hạn thời gian trên thiết bị, chưa phải phiên thi được server xác minh.</p><p id="authStatus" class="meta">Checking your sign-in…</p><button id="start" disabled>START TEST ▶</button><button id="resume" class="secondary resume-control hidden" type="button">RESUME PREVIOUS TEST</button><p id="resumeInfo" class="meta hidden"></p></section>
-<section id="resultPanel" class="result-panel hidden" aria-live="polite" aria-label="Saved Reading Result"><a class="history-button" href="../../../../student/">VIEW MY TEST HISTORY</a><div class="result-caption"><strong>SAVED READING RESULT</strong><span class="saved-indicator">✓ Saved attempt</span></div><div class="result-metrics" id="resultBody"><div class="result-tile"><strong id="resultScore">—</strong><span>Score</span></div><div class="result-tile"><strong id="resultAccuracy">—</strong><span>Accuracy</span></div><div class="result-tile"><strong id="resultBand">—</strong><span>IELTS Band</span></div></div></section><section class="workspace" id="workspace"><div class="topline"><strong id="which">SECTION 1</strong><span class="meta" id="progress">0 / 40 answered</span><span class="timer" id="timer">—</span></div><div class="split" id="split"><article class="pane passage" id="left" aria-label="Reading passage"></article><div class="divider" id="drag" role="separator" aria-label="Resize passage and questions" tabindex="0"></div><article class="pane" id="right" aria-label="Reading questions"></article></div><div id="numbers" class="question-nav" aria-label="Question navigation"></div><div class="footer"><button id="finish" class="secondary">RESET / PRACTISE AGAIN</button><button id="submit" type="button">SUBMIT TEST</button></div><div class="notice" id="notice">Your answers are only graded on the server. Please remain signed in until submission is confirmed.</div></section></main>
+<section id="resultPanel" class="result-panel hidden" aria-live="polite" aria-label="Saved Reading Result"><a class="history-button" href="../../../../student/">VIEW MY TEST HISTORY</a><div class="result-caption"><strong>SAVED READING RESULT</strong><span class="saved-indicator">✓ Saved attempt</span></div><div class="result-metrics" id="resultBody"><div class="result-tile"><strong id="resultScore">—</strong><span>Score</span></div><div class="result-tile"><strong id="resultAccuracy">—</strong><span>Accuracy</span></div><div class="result-tile"><strong id="resultBand">—</strong><span>IELTS Band</span></div></div></section><section class="workspace" id="workspace"><div class="topline"><strong id="which">SECTION 1</strong><span class="meta" id="progress">0 / 40 answered</span><span class="timer" id="timer">—</span></div><div class="split" id="split"><article class="pane passage" id="left" aria-label="Reading passage"></article><div class="divider" id="drag" role="separator" aria-label="Resize passage and questions" tabindex="0"></div><article class="pane" id="right" aria-label="Reading questions"></article></div><div id="numbers" class="question-nav" aria-label="Question navigation"></div><div class="footer"><button id="finish" class="secondary">RESET / PRACTISE AGAIN</button><button id="submit" type="button">SUBMIT TEST</button></div><div class="notice" id="notice" aria-live="polite"></div></section></main>
+<div id="floatingHighlight" class="floating-highlight hidden" role="toolbar" aria-label="Text highlighting"><button type="button" id="floatingHighlightAction">Highlight</button></div>
 <script id="testData" type="application/json">{"passages": [[["Top campsites to visit", [["A — Woodside Park", "This campsite, which opens in the summer months only, is in the middle of a country park. The site is next to a large lake and there’s woodland nearby to explore. If you don’t fancy sleeping in a tent, you can book a pod. These are all heated and furnished with beds. Facilities on site include hot showers and a small shop."], ["B — Treetops Farm", "This campsite, which is on a working farm, is open all year. The site itself is a car-free zone and you’ll need to park near the farmhouse and carry your belongings and tent to the camping area. The facilities are simple but the washrooms, which are closed daily for an hour from midday for cleaning, have free hot water for showers."], ["C — The Downs", "This campsite, which is open from April to November but closed during the coldest months, is surrounded by beautiful countryside that’s perfect for cycling and walking. Facilities on site include a laundry room as well as showers and a small shop. There’s a pub that serves hot food each evening in the nearby village, which is only a ten-minute drive away."], ["D — Bluewater Bay", "This perfectly flat grass campsite, which is open in the summer months only, is only a few minutes’ walk from the beach. There’s a shower room on site and also a farm shop (which is open until 8 pm), where you can buy anything you need for a BBQ. If you haven’t got a tent, the site offers pre-pitched ones that can be rented by the day."], ["E — Dean Park", "This large campsite, which is open all year, offers a range of facilities. As well as several shower rooms and a café serving cooked meals daily, there’s an indoor pool and games room. For anyone keen on countryside walks there are miles of footpaths in the nearby national park."], ["F — Rock Harbour", "This small, family-owned campsite has space for 50 tents and is only open in the summer. It’s just a five-minute walk to the sea so is perfect for anyone looking for a beach holiday. There’s a small shop on site and there’s always someone in the campsite office from 9 am–9 pm if you need assistance or have a problem."]]], ["Cycling in Plymouth", [["", "Cycling in the city is relatively stress free. As well as providing a growing number of cycle paths that are traffic free, local government has also added dedicated cycle lanes to many routes. A journey in the city by bike is generally quicker than the same journey by car – especially at peak times, and you can travel door to door, which saves additional time. A further benefit of cycling is that it’s cheaper than running a car – even if you include the cost of an occasional taxi. It’s also good for you: you’ll need to cycle for a recommended minimum of twenty minutes a day if you want to improve your overall fitness."], ["", "If you’ve only recently decided to take up cycling, summer is a good time to start. However, the weather is rarely so bad in Plymouth that it will stop you cycling. To get started, you can hire a bike – various apps are available where you are charged by the hour. If you want to buy a bike, you should think first about the size you’ll need and what you plan to use it for – commuting, shopping or recreation. When selecting your bike, it’s helpful to remember that ones with lighter frames and good gears make cycling easier, but are more expensive."], ["", "Although most train companies allow bikes on their trains, there are peak-time restrictions. Therefore, if you want to take a bike on a local train at peak times, you will need one that folds up. Even outside peak times, most trains have limited space for bikes of any kind so a reservation in advance of your journey is essential."], ["", "If you plan to maintain your bike, you’ll also need to buy certain equipment: a pump, a spare inner tube, and tyre levers for mending punctures. If you get a puncture, see if you can find out the cause, such as a piece of broken glass, and remove it. If you need to replace an inner tube, its size is usually shown on the tyre."]]]], [["Learning to conduct difficult conversations in the workplace", [["", "Many of us struggle to say what we need to at work. Whether it’s asking for a pay rise, or confronting a co-worker over unsatisfactory behaviour, these conversations can be difficult to have without appearing offensive."], ["", "There are several reasons why we don’t raise difficult topics at work. Perhaps we’ve learned not to rock the boat, we fear being responsible for conflict, or we think that nothing will change even if we do pluck up the courage to speak out. So we stay quiet."], ["", "Here are some tips on how to tackle your next difficult conversation:"], ["", "First, you need to plan what you’re going to say. Think about how long you need for the conversation and where to have it. The right environment is key – you don’t want somewhere too formal that will intimidate your colleague, or somewhere too casual where you may be overheard."], ["", "The second thing you need to do is write down the key messages you want to get across in the conversation. Practise saying them out loud (I like to record them on my phone and play them back). You are not preparing a script, but this preparation helps you to be brief and clear. If you are particularly nervous, rehearse what you plan to say in front of a friend so you know you are coming across as you wish to."], ["", "The language you use is also important. Consider the difference between these two phrases: ‘Steve, we’re very close to deadline date and you told me you’re a bit behind. I’d like to support you and agree a way to get the deadlines met.’ and ‘Steve, you’re behind again. This has got to stop!’ If you use the first example, you come across as looking for solutions together. That creates trust and openness. The second example is less likely to get a successful outcome."], ["", "Finally, put yourself in the other person’s shoes – however frustrating that person might be. The useless boss who never gives you feedback is simply struggling with her own extremely heavy workload. The team member who only has negative comments to make in the team meeting simply doesn’t have the skills to ask for what he wants directly."], ["", "To manage your emotions during a difficult conversation, it helps to calm things down by taking some long breaths. And finally, if you feel under pressure, remember to respond slowly rather than reacting quickly."]]], ["Making a success out of a new business", [["", "Running your own business can be very rewarding, but success is not always guaranteed. Half of small businesses fail in the first couple of years, according to official reports, but there are certain steps you can take to give your business the best chance."], ["", "First, does your business have a clear mission, yearly goals and a long-term business plan? Ensure your goals are specific, measurable and achievable. Introduce regular reviews of these goals and set new ones when appropriate. Most importantly, communicate your mission and goals to your employees. Their livelihood is tied to the success of your business, so make sure they know what they need to do to keep your business healthy."], ["", "A shortage of cash is generally what sinks small businesses, so learning to monitor your cashflow is critical. Check the dates of major outgoings, such as tax and payments for rent and rates, to ensure that you have enough cash for when these need to be paid."], ["", "If you’re setting up a partnership, choosing the right person is vital. Once you have made your choice, put in place an agreement which sets out the rights and responsibilities of each partner in the business. The agreement should also deal with what happens when difficulties arise; for example, does one partner have the ability to buy the other out? Or should the business simply be closed down – which could result in the end of a successful business?"], ["", "Knowing your market and accurately assessing the potential demand for a product is the key to an idea succeeding or failing. If your product has a very limited market, you won’t be able to sell enough to create a successful business. You should take time to understand who your competitors are and identify what distinguishes your business from theirs. Perhaps you can provide a better service or compete on price. It all boils down to understanding why customers would rather buy from you than other companies in the field."], ["", "There is a lot to think about when starting your own business, but avoiding these common pitfalls will give your business a good chance of success."]]]], [["Archaeological investigations by schoolchildren", [["A", "A group of excited children are instructing community archaeologist Colin Shepherd when to drop a china mug on the floor so that they can see how it breaks on impact. They will use the results of this experiment to better understand an archaeological find: the broken pieces of an old marmalade jar, last used for breakfast around 100 years ago. The children had recently excavated the jar from woodland as part of an archaeological investigation."], ["B", "When schoolchildren are invited to visit archaeological excavations, they rarely have much specific knowledge about the site’s history. They are normally given straightforward tasks like washing and sorting finds, that is, any discoveries that are of archaeological interest. What is less common is to find primary school pupils working as partners with an archaeologist. Our project lets primary school children take a joint role in an archaeological investigation, working actively alongside an expert in the field."], ["C", "The children’s archaeological investigations were part of a larger project initiated by a community group which works to study and preserve the landscape of the Bennachie hills region in Aberdeenshire, Scotland. The main project was developed with a team from the University of Aberdeen and funded by a Community Heritage fund and the National Lottery. It focused on the history and archaeology of an abandoned mid-19th-century settlement, located on common ground on the lower slopes of the Bennachie hills. Colin Shepherd set up two additional archaeological projects with local primary school children and their teachers. Each project investigated the history of the place in which the pupils live and go to school."], ["D", "At one of the schools, the excavation took place in woodland where pupils usually take part in outdoor learning. Before the archaeology project began, the children viewed the woodland as existing only in the present. Through their work, they became aware of its history and the people who lived and worked on the land near their school in the past. Taking on the role of historians and working with primary source materials, such as maps, census returns and tax payments, the children were able to develop their own lines of enquiry. Their research suggested that there had been a water mill in the area, so their excavations set out to find it. The children, working with the community archaeologist, found evidence for this. They also discovered the remains of a 19th- or 20th-century midden, or rubbish dump, containing many pieces of broken pottery."], ["E", "My role as a teacher educator specialising in history education was to work alongside pupils and staff to create an exhibition for their families and the general public. Following a visit to the university to see the museum there, the children produced a timeline of everything they had found to show the period in history to which each item belonged. They went on to invent a ‘guess the object’ game to engage visitors in their discoveries. The children were given the use of the museum’s replica of a 17th-century collector’s cabinet for their exhibition. During the identification of the pottery pieces, one was identified as coming from the distinctive Seaton workshop in Aberdeen, so a complete example was borrowed from the museum and included in the cabinet alongside it. Because it used a high-quality display cabinet, the children’s exhibition gained a similar status to that of a real museum for the parents and community members who came to see it."], ["F", "The project meant the children could lead their own historical investigations and expand their understanding of the places in which they live and the heritage of their family and community. This is a key principle in the Social Studies section of Scotland’s Curriculum for Excellence, the national framework for learning for children between the ages of three and 18. Not only did the children learn the history of the place, they learned to understand the process of creating historical knowledge. Through their museum visit, they learned how to select items for display and to think about how to talk to other people about the history they had created."], ["G", "Setting up the exhibition and showing it to people aided conversations between children and their community. One of the children discovered that their great-grandfather had once owned the Seaton workshop. The grandmother of another child recounted her memories of making oatmeal porridge in a small bowl decorated with the same floral design as a pottery piece on display. The archaeological investigations carried out by the children created a real-life context for them to play an active part in learning – educating not just themselves but their community too."]]]]], "questions": {"1": "You can pay to hire a tent at this campsite.", "2": "There is a short period each day when you cannot use the showers.", "3": "There is a place on site where you can wash clothes.", "4": "A member of staff is available all day to help visitors.", "5": "Visitors to this campsite can go swimming in the winter.", "6": "The number of traffic-free cycle paths in the city is increasing.", "7": "You are likely to reach your destination faster if you drive in the city than if you cycle.", "8": "There are numerous days in the winter when the weather prevents you cycling.", "9": "Using a bike app to hire a bike is very popular.", "10": "You will have to pay a higher price to buy a bike that is light.", "11": "Only folding bikes can be taken on local trains at any time.", "12": "You need to book to take a bike on a train at least a week before you travel.", "13": "If you are repairing a puncture, you will need a piece of equipment called a tyre lever.", "14": "Broken glass is the most common cause of tyre punctures.", "15": "A lot of people find it hard to challenge colleagues about their poor {gap}.", "16": "People are often afraid of causing {gap} with colleagues if they raise tricky issues.", "17": "It is important to select the most suitable {gap} for a difficult talk.", "18": "It may help to consult a {gap} for feedback on how you are communicating the main points.", "19": "It often works best if the speaker sounds as if they want to find {gap} to the problem under discussion.", "20": "A line manager that fails to communicate may have an excessive {gap}.", "21": "If colleagues never have anything good to say, they may lack the appropriate {gap} to make requests appropriately.", "22": "Statistically, out of all new business ventures, {gap} will not survive two years.", "23": "Arrange frequent {gap} to ensure these goals are still practicable.", "24": "Make sure all {gap} are fully aware of them.", "25": "Noting {gap} for paying tax and other outgoings.", "26": "Their {gap} and what they are responsible for doing in the business.", "27": "Find out how your product differs from what {gap} offer.", "28": "how unusual it is for archaeologists and children to have equal responsibilities", "29": "the relevance of the children’s achievements to a country’s educational requirements", "30": "the location of the archaeologists’ main project", "31": "a place where a large amount of archaeological material was found", "32": "a relative’s connection to a local business", "33": "The experiment described in paragraph A is designed to show", "34": "In paragraph B, what does the writer say most schoolchildren do when they visit archaeological sites?", "35": "The water mill is an example of something that the children", "36": "What does the writer say about one child’s grandmother?", "37": "First the children went to look at the exhibits on display at the {gap} museum.", "38": "Then they created a {gap} for visitors to test their knowledge of the items.", "39": "One piece of pottery was recognised as being made at a particular {gap}.", "40": "What would be a suitable title for the article?"}, "mc": {"33": ["why objects break up when they are left in woodland.", "how modern objects differ from those made in the past.", "what happens to a breakable object when it hits the ground.", "how long it takes to put a broken object back together again."], "34": ["They meet with experts at the site.", "They talk to people living near the site.", "They are given information about the site.", "They engage in simple activities at the site."], "35": ["had read about in history lessons.", "discovered using written documents.", "had heard about from local people.", "remembered from previous activities."], "36": ["She recognised the pattern on some pottery.", "She showed the children how to decorate pottery.", "She regularly cooked using a pot that was very old.", "She offered the children an old pot that she had kept."], "40": ["Children make an exciting archaeological discovery", "Archaeology is becoming a new hobby for children", "The benefits for children of working with archaeologists", "Communities appreciate the teachings of archaeologists"]}}</script>
 <script type="module">
 import {auth,roleFor,db} from '../../../../shared/firebase.js';
 import {onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 import {doc,getDoc} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 const DATA=JSON.parse(document.getElementById('testData').textContent),qs=DATA.questions,mc=DATA.mc;
-const $=id=>document.getElementById(id),state={answers:{},flags:{},section:0,mode:null,deadline:null,startedAt:null,submissionId:null,started:false,done:false,submitting:false,confirmed:false},esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id),state={answers:{},flags:{},highlights:{},section:0,mode:null,deadline:null,startedAt:null,submissionId:null,started:false,done:false,submitting:false,confirmed:false},esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let timerHandle=null;
 const FIREBASE_RESULTS_URL='https://script.google.com/macros/s/AKfycbzBlbma_M2UlfdYVAFr9LMA4Av91VqD1PNPRK527UdzTN2BLzfojdxUEB-ERs6zeJ9eAQ/exec';
 const TEST_ID='gt-no20-test1-reading';
@@ -108,7 +136,7 @@ let pendingSession=null;let activeQuestion=null;
 const REVIEW_ATTEMPT_ID=new URLSearchParams(location.search).get('review');
 const REVIEW_ID_VALID=!REVIEW_ATTEMPT_ID || /^ielts_[a-f0-9]{64}$/.test(REVIEW_ATTEMPT_ID);
 let reviewRecord=null;
-function persist(){try{sessionStorage.setItem(STORE_KEY,JSON.stringify({uid:authUser?.uid,answers:state.answers,flags:state.flags,section:state.section,mode:state.mode,deadline:state.deadline,startedAt:state.startedAt,submissionId:state.submissionId,started:state.started,done:state.done,confirmed:state.confirmed}))}catch(e){}}
+function persist(){try{sessionStorage.setItem(STORE_KEY,JSON.stringify({uid:authUser?.uid,answers:state.answers,flags:state.flags,section:state.section,mode:state.mode,deadline:state.deadline,startedAt:state.startedAt,submissionId:state.submissionId,started:state.started,done:state.done,confirmed:state.confirmed,highlights:state.highlights||{}}))}catch(e){}}
 function restore(user){
   try{
     const saved=JSON.parse(sessionStorage.getItem(STORE_KEY)||'null');
@@ -143,8 +171,21 @@ $('resume').addEventListener('click',()=>{
   enterWorkspace();if(!state.done)requestExamFullscreen();
 });
 async function attemptDocumentId(){const input=authUser.uid+'|'+TEST_ID+'|'+state.submissionId;const buffer=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(input));return 'ielts_'+Array.from(new Uint8Array(buffer),x=>x.toString(16).padStart(2,'0')).join('')}
-function showSavedReviewRecord(record){
+function highlightStorageKey(attemptId){return 'kim_reading_marks_v14_'+(authUser?.uid||'')+'_'+String(attemptId||'');}
+function loadAttemptHighlights(attemptId){
+  try{const obj=JSON.parse(localStorage.getItem(highlightStorageKey(attemptId))||'null');return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{};}catch(e){return {}; }
+}
+function storeAttemptHighlights(attemptId){
+  if(!attemptId||!authUser)return;
+  try{localStorage.setItem(highlightStorageKey(attemptId),JSON.stringify(state.highlights||{}));}catch(e){console.warn('Highlight history storage unavailable',e);}
+}
+function showSavedReviewRecord(record,attemptId){
   if(!record||!Array.isArray(record.answers)||record.answers.length!==40)throw new Error('Saved Reading answers are incomplete.');
+  // Keep yellow student marks in Review. Store them by verified attempt ID on this browser.
+  const remembered=loadAttemptHighlights(attemptId);
+  if(!Object.keys(remembered).length && !REVIEW_ATTEMPT_ID && Object.keys(state.highlights||{}).length){storeAttemptHighlights(attemptId);}
+  else state.highlights=remembered;
+  hideHighlightPopup();
   reviewRecord=record;
   state.answers={};
   record.answers.forEach(item=>{const q=Number(item.question);if(Number.isInteger(q)&&q>=1&&q<=40)state.answers[q]=String(item.answer??'');});
@@ -177,7 +218,7 @@ async function openSavedReadingReview(user){
       throw new Error('This Reading attempt does not belong to your account or test.');
     }
     if(!Array.isArray(record.answers) || record.answers.length!==40)throw new Error('Saved answers are incomplete.');
-    showSavedReviewRecord(record);
+    showSavedReviewRecord(record,REVIEW_ATTEMPT_ID);
   }catch(error){showReviewError(error.message||'Could not open saved review.');}
 }
 function showReviewError(message){$('intro').classList.remove('hidden');$('start').classList.add('hidden');$('authStatus').textContent=message;}
@@ -229,6 +270,7 @@ function selectReviewEvidence(q){
   const detail=$('review-evidence-'+q);if(detail)detail.classList.remove('hidden');
   // Reset the passage before highlighting a new question, preventing stale matches.
   passage();
+  repaintHighlights();
   if(typeof item.evidence!=='string'||!item.evidence.trim())return;
   const found=findEvidenceParagraph(item);
   if(found){
@@ -283,7 +325,7 @@ async function checkSavedAttempt(){
   if(!snap.exists())return false;
   const record=snap.data();
   if(record.studentUid!==authUser.uid||record.testId!==TEST_ID||String(record.skill||'').toLowerCase()!=='reading')throw new Error('Attempt does not match signed-in user and Reading test');
-  showSavedReviewRecord(record);
+  showSavedReviewRecord(record,id);
   return true;
 }
 
@@ -342,7 +384,99 @@ function businessNotes(){
    '<li>select business partners carefully and draw up a document stating<ul><li>their '+part(26,'',' and what they are responsible for doing in the business')+'</li><li>the procedure to follow if the business faces difficulties</li></ul></li>'+
    '<li>research the market:<ul><li>find out how your product differs from what '+part(27,'',' offer')+'</li><li>consider if the price of the product could be lowered</li></ul></li></ul></div>';
 }
+// Student annotations are text offsets, not HTML. They never contain official answers.
+function highlightTargets(){
+  document.querySelectorAll('#left p').forEach((el,i)=>el.dataset.highlightTarget='s'+state.section+'-passage-'+i);
+  document.querySelectorAll('#right .matrix-text').forEach(el=>{const row=el.closest('[id^="q"]');if(row)el.dataset.highlightTarget='s'+state.section+'-q'+row.id.slice(1)+'-prompt'});
+  document.querySelectorAll('#right .qhead p:not(:has(input))').forEach(el=>{const row=el.closest('[id^="q"]');if(row)el.dataset.highlightTarget='s'+state.section+'-q'+row.id.slice(1)+'-prompt'});
+  document.querySelectorAll('#right .answers label span').forEach((el,i)=>{const row=el.closest('[id^="q"]');if(row)el.dataset.highlightTarget='s'+state.section+'-q'+row.id.slice(1)+'-choice'+i});
+}
+function repaintHighlights(){
+  highlightTargets();
+  document.querySelectorAll('[data-highlight-target]').forEach(el=>{
+    const original=el.textContent;
+    const saved=(state.highlights||{})[el.dataset.highlightTarget]||[];
+    if(!saved.length){
+      // Remove obsolete marks from this target while preserving the plain text.
+      if(el.querySelector('mark.student-keyword-highlight'))el.textContent=original;
+      return;
+    }
+    const fragment=document.createDocumentFragment();let cursor=0;
+    for(const [rawA,rawB] of [...saved].sort((a,b)=>a[0]-b[0])){
+      const a=Math.max(cursor,Math.min(original.length,rawA)),b=Math.max(a,Math.min(original.length,rawB));
+      if(a>cursor)fragment.append(document.createTextNode(original.slice(cursor,a)));
+      if(b>a){const mark=document.createElement('mark');mark.className='student-keyword-highlight';mark.textContent=original.slice(a,b);mark.dataset.start=String(a);mark.dataset.end=String(b);mark.title=reviewRecord?'Student highlight':'Click to clear this highlight';fragment.append(mark);}
+      cursor=b;
+    }
+    if(cursor<original.length)fragment.append(document.createTextNode(original.slice(cursor)));
+    el.replaceChildren(fragment);
+  });
+}
+function textOffset(root,container,offset){
+  const r=document.createRange();r.selectNodeContents(root);r.setEnd(container,offset);return r.toString().length;
+}
+const highlightPopup=$('floatingHighlight'),highlightAction=$('floatingHighlightAction');
+let pendingHighlight=null;
+function editingHighlightsAllowed(){return !!state.started&&!state.done&&!reviewRecord&&!REVIEW_ATTEMPT_ID;}
+function hideHighlightPopup(){pendingHighlight=null;highlightPopup.classList.add('hidden');}
+function positionHighlightPopup(rect){
+  highlightPopup.classList.remove('hidden');
+  const width=highlightPopup.offsetWidth||112,height=highlightPopup.offsetHeight||39;
+  const left=Math.min(Math.max(10,rect.left+rect.width/2-width/2+18),Math.max(10,window.innerWidth-width-10));
+  const above=rect.top-height-9,top=above>=8?above:Math.min(window.innerHeight-height-8,rect.bottom+9);
+  highlightPopup.style.left=Math.round(left)+'px';highlightPopup.style.top=Math.round(Math.max(8,top))+'px';
+}
+function offerHighlightForSelection(){
+  if(!editingHighlightsAllowed()){hideHighlightPopup();return;}
+  const sel=window.getSelection();if(!sel||sel.isCollapsed||!sel.rangeCount){return;}
+  const range=sel.getRangeAt(0);
+  const startNode=range.startContainer.nodeType===1?range.startContainer:range.startContainer.parentElement;
+  const endNode=range.endContainer.nodeType===1?range.endContainer:range.endContainer.parentElement;
+  const el=startNode?.closest('[data-highlight-target]');
+  if(!el||!endNode?.closest('[data-highlight-target]')||endNode.closest('[data-highlight-target]')!==el){hideHighlightPopup();return;}
+  const a=textOffset(el,range.startContainer,range.startOffset),b=textOffset(el,range.endContainer,range.endOffset);
+  if(b<=a){hideHighlightPopup();return;}
+  const rect=range.getBoundingClientRect();
+  pendingHighlight={kind:'add',key:el.dataset.highlightTarget,start:a,end:b};
+  highlightAction.textContent='Highlight';positionHighlightPopup(rect);
+}
+function addStudentHighlight(entry){
+  if(!editingHighlightsAllowed()||!entry)return;
+  state.highlights||={};
+  const entries=[...(state.highlights[entry.key]||[]),[entry.start,entry.end]].sort((a,b)=>a[0]-b[0]);
+  const merged=[];for(const [a,b] of entries){if(merged.length&&a<=merged[merged.length-1][1])merged[merged.length-1][1]=Math.max(b,merged[merged.length-1][1]);else merged.push([a,b]);}
+  state.highlights[entry.key]=merged;window.getSelection()?.removeAllRanges();hideHighlightPopup();repaintHighlights();persist();
+}
+function removeStudentHighlight(entry){
+  if(!editingHighlightsAllowed()||!entry)return;
+  const arr=(state.highlights||{})[entry.key]||[];
+  const remaining=arr.filter(([a,b])=>!(a===entry.start&&b===entry.end));
+  if(remaining.length)state.highlights[entry.key]=remaining;else delete state.highlights[entry.key];
+  hideHighlightPopup();repaintHighlights();persist();
+}
+// Preserve text selection while pressing the floating button.
+highlightPopup.addEventListener('pointerdown',e=>e.preventDefault());
+highlightAction.addEventListener('click',()=>{
+  const action=pendingHighlight;if(!action)return;
+  if(action.kind==='remove')removeStudentHighlight(action);else addStudentHighlight(action);
+});
+for(const pane of [$('left'),$('right')]){
+  pane.addEventListener('pointerup',e=>{if(e.target.closest('mark.student-keyword-highlight')&&!window.getSelection()?.toString().trim())return;requestAnimationFrame(offerHighlightForSelection)});
+  pane.addEventListener('keyup',e=>{if(e.key==='Shift'||e.key.startsWith('Arrow'))requestAnimationFrame(offerHighlightForSelection)});
+  pane.addEventListener('click',e=>{
+    const mark=e.target.closest('mark.student-keyword-highlight');
+    if(!mark||!editingHighlightsAllowed()||window.getSelection()?.toString().trim())return;
+    const root=mark.closest('[data-highlight-target]');if(!root)return;
+    pendingHighlight={kind:'remove',key:root.dataset.highlightTarget,start:Number(mark.dataset.start),end:Number(mark.dataset.end)};
+    highlightAction.textContent='Clear Highlight';positionHighlightPopup(mark.getBoundingClientRect());
+    e.stopPropagation();
+  });
+  pane.addEventListener('scroll',hideHighlightPopup,{passive:true});
+}
+document.addEventListener('pointerdown',e=>{if(!highlightPopup.contains(e.target)&&!e.target.closest('mark.student-keyword-highlight')&&!e.target.closest('[data-highlight-target]'))hideHighlightPopup()});
+window.addEventListener('resize',hideHighlightPopup);
 function render(){
+  hideHighlightPopup();
   let [start,end]=rng(state.section),last='';$('which').textContent='SECTION '+(state.section+1);passage();let out='';
   for(let q=start;q<=end;q++){
     let guideText=guide(q);
@@ -355,7 +489,7 @@ function render(){
     let controls=options?'<div class="answers">'+options.map((op,i)=>'<label><input type="radio" name="q'+q+'" data-q="'+q+'" value="'+esc(op)+'" '+(state.answers[q]===op?'checked':'')+'><span>'+esc(op)+'</span>'+(mc[q]?' · '+esc(mc[q][i]):'')+'</label>').join('')+'</div>':'';
     out+='<div class="question" id="q'+q+'"><div class="qhead"><span class="qnum">'+q+'</span><p>'+label+'</p>'+bookmarkButton(q)+'</div>'+controls+'</div>';
   }
-  $('right').innerHTML='<h2 class="question-title">Questions '+start+'–'+end+'</h2>'+out;$('right').scrollTop=0;$('left').scrollTop=0;nav();if(reviewRecord)decorateReview();if(activeQuestion>=start&&activeQuestion<=end)activateQuestion(activeQuestion);
+  $('right').innerHTML='<h2 class="question-title">Questions '+start+'–'+end+'</h2>'+out;$('right').scrollTop=0;$('left').scrollTop=0;nav();repaintHighlights();if(reviewRecord)decorateReview();if(activeQuestion>=start&&activeQuestion<=end)activateQuestion(activeQuestion);
 }
 function nav(){
   const count=Object.values(state.answers).filter(v=>String(v).trim()).length;
@@ -413,11 +547,11 @@ document.querySelectorAll('input[name="mode"]').forEach(input=>{input.checked=fa
 window.addEventListener('pageshow',event=>{if(event.persisted&&!state.started&&!REVIEW_ATTEMPT_ID){document.querySelectorAll('input[name="mode"]').forEach(input=>input.checked=false);updateStartAvailability()}});
 $('start').addEventListener('click',()=>{const selectedMode=document.querySelector('input[name="mode"]:checked');if(REVIEW_ATTEMPT_ID||state.started||!authUser||!selectedMode)return;
   if(pendingSession&&!confirm('Start a new test? Your previous unfinished session will be discarded.'))return;
-  pendingSession=null;state.started=true;state.startedAt=Date.now();state.mode=selectedMode.value;state.deadline=state.mode==='exam'?state.startedAt+3600000:null;
+  pendingSession=null;state.highlights={};state.started=true;state.startedAt=Date.now();state.mode=selectedMode.value;state.deadline=state.mode==='exam'?state.startedAt+3600000:null;
   $('intro').classList.add('hidden');$('workspace').style.display='block';persist();render();clock();timerHandle=setInterval(clock,500);requestExamFullscreen();
 });
 $('submit').addEventListener('click',async()=>{if(state.done&&!state.confirmed){state.done=false;await submitTest('retry')}else await submitTest('manual')});
 $('finish').addEventListener('click',()=>{if(!state.done&&!confirm('Discard this attempt and start again? Unsubmitted answers will be lost.'))return;if(state.done&&!state.confirmed){alert('Confirm your submission in MY TEST HISTORY before resetting.');return;}clearInterval(timerHandle);sessionStorage.removeItem(STORE_KEY);if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});window.location.reload()});
-let moving=false;const split=$('split');$('drag').addEventListener('pointerdown',e=>{moving=true;$('drag').setPointerCapture(e.pointerId)});$('drag').addEventListener('pointermove',e=>{if(!moving)return;const r=split.getBoundingClientRect(),pct=Math.max(22,Math.min(78,(e.clientX-r.left)/r.width*100));split.style.gridTemplateColumns='minmax(0,'+pct+'fr) 9px minmax(0,'+(100-pct)+'fr)'});$('drag').addEventListener('pointerup',()=>moving=false);$('drag').addEventListener('pointercancel',()=>moving=false);$('drag').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const w=$('left').getBoundingClientRect().width/split.getBoundingClientRect().width*100,pct=Math.max(22,Math.min(78,w+(e.key==='ArrowRight'?3:-3)));split.style.gridTemplateColumns='minmax(0,'+pct+'fr) 9px minmax(0,'+(100-pct)+'fr)'});
+let moving=false;const split=$('split');$('drag').addEventListener('pointerdown',e=>{moving=true;$('drag').setPointerCapture(e.pointerId)});$('drag').addEventListener('pointermove',e=>{if(!moving)return;const r=split.getBoundingClientRect(),pct=Math.max(22,Math.min(78,(e.clientX-r.left)/r.width*100));split.style.gridTemplateColumns='minmax(0,'+pct+'fr) 4px minmax(0,'+(100-pct)+'fr)'});$('drag').addEventListener('pointerup',()=>moving=false);$('drag').addEventListener('pointercancel',()=>moving=false);$('drag').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const w=$('left').getBoundingClientRect().width/split.getBoundingClientRect().width*100,pct=Math.max(22,Math.min(78,w+(e.key==='ArrowRight'?3:-3)));split.style.gridTemplateColumns='minmax(0,'+pct+'fr) 4px minmax(0,'+(100-pct)+'fr)'});
 
 </script></body></html>
