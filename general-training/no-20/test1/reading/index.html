@@ -124,6 +124,16 @@
 .exam-lock-card{background:#fff;border-radius:16px;padding:28px;max-width:570px;width:100%;color:#173858;text-align:center;box-shadow:0 15px 60px #0006}
 .exam-lock-card h2{margin:0 0 12px}.exam-lock-card p{font-size:15px}
 .exam-lock-card button{margin-top:10px}
+
+/* V15.1 · Passage annotations below each section in question navigation. */
+.nav-passage-group{margin:5px 0 10px;min-width:0}
+.nav-passage-group+.nav-passage-group{border-top:1px solid #e1e8ef;padding-top:8px}
+.nav-passage-label{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:0 0 5px;color:#173858;font-size:12px;font-weight:800}
+.nav-passage-label span{font-size:10px;font-weight:500;color:#61768b}
+.nav-passage-group .nav-part-buttons{margin-top:0}
+/* Routine yellow notification is omitted during both Practice and Exam modes. */
+#notice{background:transparent!important;border:0!important;padding:0!important;color:#a03925}
+#notice:empty{display:none!important}
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-20/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
 <main><section id="intro" class="intro"><h1>IELTS General Training Reading</h1><p class="sub">No. 20 · Test 1 · 40 questions · 3 sections</p><h2>Choose your test mode</h2><div class="choice"><label><input type="radio" name="mode" value="practice"> <b>Practice Mode</b><div class="sub">Unlimited time · No countdown</div></label><label><input type="radio" name="mode" value="exam"> <b>Exam Mode</b><div class="sub">60-minute countdown</div></label></div><p id="authStatus" class="meta">Checking your sign-in…</p><button id="start" disabled>START TEST ▶</button><button id="resume" class="secondary resume-control hidden" type="button">RESUME PREVIOUS TEST</button><p id="resumeInfo" class="meta hidden"></p></section>
@@ -157,7 +167,7 @@ function restore(user){
   }catch(e){console.warn('Unable to check saved session',e)}
 }
 async function enterWorkspace(){
-  $('intro').classList.add('hidden');$('workspace').style.display='block';
+  $('intro').classList.add('hidden');$('workspace').style.display='block';if(!state.done)$('notice').textContent='';
   render();clock();
   if(!state.done)timerHandle=setInterval(clock,500);
   else{
@@ -230,7 +240,7 @@ function showSavedReviewRecord(record,attemptId){
   clearInterval(timerHandle);
   if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
   setExamLocked(false);
-  $('intro').classList.add('hidden');$('workspace').style.display='block';
+  $('intro').classList.add('hidden');$('workspace').style.display='block';if(!state.done)$('notice').textContent='';
   $('submit').classList.add('hidden');$('finish').classList.add('hidden');
   $('timer').textContent='REVIEW ONLY';
   $('resultPanel').classList.remove('hidden');
@@ -570,15 +580,19 @@ function render(){
 function nav(){
   const count=Object.values(state.answers).filter(v=>String(v).trim()).length;
   $('progress').textContent=count+' / 40 answered';
-  const groups=[];
-  for(const [index,range] of [[1,14],[15,27],[28,40]].entries()){
-    let buttons='';
-    for(let q=range[0];q<=range[1];q++){
-      const marked=!!state.flags[q],answered=!!String(state.answers[q]||'').trim();
-      buttons+='<button type="button" data-jump="'+q+'" title="Go to question '+q+'" class="'+(answered?'answered ':'')+(marked?'flagged ':'')+'" '+(activeQuestion===q?'aria-current="true"':'')+'>'+q+(marked?'<span class="nav-mark" aria-hidden="true">◆</span>':'')+'</button>';
-    }
-    groups.push('<div class="nav-part"><button class="nav-part-title '+(state.section===index?'current':'')+'" type="button" data-section-jump="'+index+'">Section '+(index+1)+'</button><div class="nav-part-buttons">'+buttons+'</div></div>');
-  }
+  const sectionSets=[[[1,5],[6,14]],[[15,21],[22,27]],[[28,40]]];
+  const groups=sectionSets.map((passages,index)=>{
+    const passageBlocks=passages.map((range,idx)=>{
+      const buttons=[];
+      for(let q=range[0];q<=range[1];q++){
+        const marked=!!state.flags[q],answered=!!String(state.answers[q]||'').trim();
+        buttons.push('<button type="button" data-jump="'+q+'" title="Go to question '+q+'" class="'+(answered?'answered ':'')+(marked?'flagged ':'')+'" '+(activeQuestion===q?'aria-current="true"':'')+'>'+q+(marked?'<span class="nav-mark" aria-hidden="true">◆</span>':'')+'</button>');
+      }
+      // Section 3 has just one passage, so do not add a redundant passage label.
+      return '<div class="nav-passage-group">'+(index<2?'<div class="nav-passage-label">Passage '+(idx+1)+' <span>Questions '+range[0]+'–'+range[1]+'</span></div>':'')+'<div class="nav-part-buttons">'+buttons.join('')+'</div></div>';
+    }).join('');
+    return '<div class="nav-part"><button class="nav-part-title '+(state.section===index?'current':'')+'" type="button" data-section-jump="'+index+'">Section '+(index+1)+'</button>'+passageBlocks+'</div>';
+  });
   $('numbers').innerHTML=groups.join('');
 }
 $('right').addEventListener('input',e=>{let el=e.target.closest('[data-q]');if(!el)return;state.answers[Number(el.dataset.q)]=el.value;nav();persist()});
@@ -627,7 +641,7 @@ window.addEventListener('pageshow',event=>{if(event.persisted&&!state.started&&!
 $('start').addEventListener('click',()=>{const selectedMode=document.querySelector('input[name="mode"]:checked');if(REVIEW_ATTEMPT_ID||state.started||!authUser||!selectedMode)return;
   if(pendingSession&&!confirm('Start a new test? Your previous unfinished session will be discarded.'))return;
   pendingSession=null;activeQuestion=1;state.section=0;state.highlights={};state.started=true;state.startedAt=Date.now();state.mode=selectedMode.value;state.deadline=state.mode==='exam'?state.startedAt+3600000:null;
-  $('intro').classList.add('hidden');$('workspace').style.display='block';persist();render();clock();timerHandle=setInterval(clock,500);requestExamFullscreen();
+  $('intro').classList.add('hidden');$('workspace').style.display='block';if(!state.done)$('notice').textContent='';persist();render();clock();timerHandle=setInterval(clock,500);requestExamFullscreen();
 });
 $('submit').addEventListener('click',async()=>{if(state.done&&!state.confirmed){state.done=false;await submitTest('retry')}else await submitTest('manual')});
 $('finish').addEventListener('click',()=>{if(examRunning())return;if(!state.done&&!confirm('Discard this attempt and start again? Unsubmitted answers will be lost.'))return;if(state.done&&!state.confirmed){alert('Confirm your submission in MY TEST HISTORY before resetting.');return;}clearInterval(timerHandle);sessionStorage.removeItem(STORE_KEY);if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});window.location.reload()});
