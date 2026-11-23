@@ -129,11 +129,25 @@
 .nav-passage-group{margin:5px 0 10px;min-width:0}
 .nav-passage-group+.nav-passage-group{border-top:1px solid #e1e8ef;padding-top:8px}
 .nav-passage-label{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:0 0 5px;color:#173858;font-size:12px;font-weight:800}
-.nav-passage-label span{font-size:10px;font-weight:500;color:#61768b}
+button.nav-passage-label{width:100%;display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin:0 0 5px;background:#f1f6fb;border:1px solid #d1dfed;border-radius:5px;padding:5px 7px;color:#173858;font-size:12px;font-weight:800;text-align:left;line-height:1.5;cursor:pointer}
+button.nav-passage-label span{font-size:10px;font-weight:500;color:#61768b}
+button.nav-passage-label:hover,button.nav-passage-label:focus-visible{background:#e3f0ff;border-color:#315f88;outline:2px solid #315f88;outline-offset:1px}
+button.nav-passage-label.current{background:#e3f0ff;border-color:#315f88}
 .nav-passage-group .nav-part-buttons{margin-top:0}
 /* Routine yellow notification is omitted during both Practice and Exam modes. */
 #notice{background:transparent!important;border:0!important;padding:0!important;color:#a03925}
 #notice:empty{display:none!important}
+
+/* V15.3 · Both passage tabs share one horizontal row, with each question group directly beneath. */
+.nav-passage-layout.has-two-passages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:7px;align-items:start;margin-top:7px}
+.nav-passage-layout.single-passage{display:block}
+.nav-passage-layout.has-two-passages .nav-passage-group{margin:0;min-width:0}
+.nav-passage-layout.has-two-passages .nav-passage-group+.nav-passage-group{border-top:0;padding-top:0;border-left:1px solid #e1e8ef;padding-left:7px}
+.nav-passage-layout.has-two-passages button.nav-passage-label{display:flex;align-items:center;justify-content:center;min-height:34px;text-align:center;flex-wrap:wrap;gap:0 5px;margin-bottom:7px;padding:5px 3px}
+.nav-passage-layout.has-two-passages button.nav-passage-label span{display:block;width:100%;font-size:10px;line-height:1.2}
+.nav-passage-layout.has-two-passages .nav-part-buttons{display:flex;gap:3px;flex-wrap:wrap;align-content:start}
+.nav-passage-layout.has-two-passages .nav-part-buttons button{min-width:28px;flex:0 0 auto}
+@media(max-width:600px){.nav-passage-layout.has-two-passages{column-gap:9px}.nav-passage-layout.has-two-passages .nav-passage-group+.nav-passage-group{padding-left:9px}}
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-20/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
 <main><section id="intro" class="intro"><h1>IELTS General Training Reading</h1><p class="sub">No. 20 · Test 1 · 40 questions · 3 sections</p><h2>Choose your test mode</h2><div class="choice"><label><input type="radio" name="mode" value="practice"> <b>Practice Mode</b><div class="sub">Unlimited time · No countdown</div></label><label><input type="radio" name="mode" value="exam"> <b>Exam Mode</b><div class="sub">60-minute countdown</div></label></div><p id="authStatus" class="meta">Checking your sign-in…</p><button id="start" disabled>START TEST ▶</button><button id="resume" class="secondary resume-control hidden" type="button">RESUME PREVIOUS TEST</button><p id="resumeInfo" class="meta hidden"></p></section>
@@ -589,9 +603,9 @@ function nav(){
         buttons.push('<button type="button" data-jump="'+q+'" title="Go to question '+q+'" class="'+(answered?'answered ':'')+(marked?'flagged ':'')+'" '+(activeQuestion===q?'aria-current="true"':'')+'>'+q+(marked?'<span class="nav-mark" aria-hidden="true">◆</span>':'')+'</button>');
       }
       // Section 3 has just one passage, so do not add a redundant passage label.
-      return '<div class="nav-passage-group">'+(index<2?'<div class="nav-passage-label">Passage '+(idx+1)+' <span>Questions '+range[0]+'–'+range[1]+'</span></div>':'')+'<div class="nav-part-buttons">'+buttons.join('')+'</div></div>';
+      return '<div class="nav-passage-group">'+(index<2?'<button type="button" class="nav-passage-label '+(state.section===index&&activeQuestion>=range[0]&&activeQuestion<=range[1]?'current':'')+'" data-passage-jump="'+range[0]+'" aria-label="Section '+(index+1)+', Passage '+(idx+1)+', questions '+range[0]+' to '+range[1]+'">Passage '+(idx+1)+' <span>Questions '+range[0]+'–'+range[1]+'</span></button>':'')+'<div class="nav-part-buttons">'+buttons.join('')+'</div></div>';
     }).join('');
-    return '<div class="nav-part"><button class="nav-part-title '+(state.section===index?'current':'')+'" type="button" data-section-jump="'+index+'">Section '+(index+1)+'</button>'+passageBlocks+'</div>';
+    return '<div class="nav-part"><button class="nav-part-title '+(state.section===index?'current':'')+'" type="button" data-section-jump="'+index+'">Section '+(index+1)+'</button><div class="nav-passage-layout '+(index<2?'has-two-passages':'single-passage')+'">'+passageBlocks+'</div></div>';
   });
   $('numbers').innerHTML=groups.join('');
 }
@@ -609,6 +623,19 @@ $('right').addEventListener('focusin',e=>{const q=e.target.closest('[id^="q"]');
 $('right').addEventListener('click',e=>{if(!reviewRecord)return;const q=e.target.closest('[id^="q"]');if(q)activateQuestion(Number(q.id.slice(1)))});
 $('right').addEventListener('pointerdown',e=>{const q=e.target.closest('[id^="q"]');if(q)activateQuestion(Number(q.id.slice(1)))});
 $('numbers').addEventListener('click',e=>{
+  // Passage headings are navigation controls, not bookmark controls.
+  const passageButton=e.target.closest('[data-passage-jump]');
+  if(passageButton){
+    const q=Number(passageButton.dataset.passageJump);
+    const section=q<=14?0:q<=27?1:2;
+    activeQuestion=q;state.section=section;
+    render();activateQuestion(q);persist();
+    requestAnimationFrame(()=>{
+      const target=$('q'+q);
+      if(target){const top=target.getBoundingClientRect().top-$('right').getBoundingClientRect().top+$('right').scrollTop-24;$('right').scrollTo({top:Math.max(0,top),behavior:'smooth'});}
+    });
+    return;
+  }
   const sectionButton=e.target.closest('[data-section-jump]');
   if(sectionButton){
     state.section=Number(sectionButton.dataset.sectionJump);
