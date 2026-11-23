@@ -565,6 +565,30 @@ function highlightTargets(){
   document.querySelectorAll('#right .matrix-text').forEach(el=>{const row=el.closest('[id^="q"]');if(row)el.dataset.highlightTarget='s'+state.section+'-q'+row.id.slice(1)+'-prompt'});
   document.querySelectorAll('#right .qhead p:not(:has(input))').forEach(el=>{const row=el.closest('[id^="q"]');if(row)el.dataset.highlightTarget='s'+state.section+'-q'+row.id.slice(1)+'-prompt'});
   document.querySelectorAll('#right .answers label span').forEach((el,i)=>{const row=el.closest('[id^="q"]');if(row)el.dataset.highlightTarget='s'+state.section+'-q'+row.id.slice(1)+'-choice'+i});
+  // Sentence Completion (Q15–21) and Note Completion (Q22–27) contain
+  // inline answer inputs. Their parent elements must NOT be marked as one
+  // highlight target, because repainting that parent would destroy the input.
+  // Wrap only immutable text nodes in individually keyed spans instead.
+  const writableRoots=[...document.querySelectorAll('#right .qhead p:has(input), #right .note-completion')];
+  writableRoots.forEach((root,rootIndex)=>{
+    const keyPrefix=root.closest('[id^="q"]')?'q'+root.closest('[id^="q"]').id.slice(1):'notes'+rootIndex;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const candidates=[];
+    while(walker.nextNode()){
+      const node=walker.currentNode;
+      if(!node.nodeValue.trim())continue;
+      const parent=node.parentElement;
+      if(parent.closest('[data-highlight-target],.qnum,.bookmark-btn,.review-feedback,.review-evidence,.review-explanation,button,script,style'))continue;
+      candidates.push(node);
+    }
+    candidates.forEach((node,i)=>{
+      const span=document.createElement('span');
+      span.dataset.highlightTarget='s'+state.section+'-'+keyPrefix+'-static-'+i;
+      node.parentNode.replaceChild(span,node);
+      span.appendChild(node);
+    });
+  });
+
 }
 function repaintHighlights(){
   highlightTargets();
