@@ -239,8 +239,10 @@ body.review-active #right .bookmark-btn{display:none!important}
 body.review-active .review-tools .history-quick{background:#173858;color:white;text-decoration:none;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
 #workspace:fullscreen .review-tools{display:flex;align-items:center;gap:5px}
 #workspace:fullscreen .review-score-line{font-size:12px}
-#workspace:fullscreen .question-nav{display:none!important}
-body.review-nav-open #workspace:fullscreen .question-nav{display:grid!important}
+body.review-active #workspace:fullscreen .question-nav{display:none!important}
+body.review-active.review-nav-open #workspace:fullscreen .question-nav{display:grid!important}
+/* Exam and Practice: fullscreen must never hide the section navigator. */
+body.reading-active:not(.review-active) #workspace:fullscreen .question-nav{display:grid!important;visibility:visible!important}
 @media(max-width:760px){body.review-active .review-score-line{font-size:11px}body.review-active .topline{gap:5px}body.review-active .review-tools button{font-size:10px;padding:4px 6px}body.review-active .pane{padding:10px;font-size:14px}}
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-20/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
@@ -775,10 +777,18 @@ $('reviewFullscreenToggle').addEventListener('click',async()=>{
   }catch(err){console.warn('Review fullscreen unavailable',err);}
 });
 document.addEventListener('fullscreenchange',()=>{
-  if(reviewRecord)$('reviewFullscreenToggle').textContent=document.fullscreenElement===$('workspace')?'EXIT FULL SCREEN':'EXPAND REVIEW';
+  if(!reviewRecord)return;
+  const expanded=document.fullscreenElement===$('workspace');
+  $('reviewFullscreenToggle').textContent=expanded?'EXIT FULL SCREEN':'EXPAND REVIEW';
+  // On entering expanded Review, show navigation immediately. The QUESTIONS
+  // button can still collapse/reopen it whenever the student wishes.
+  document.body.classList.toggle('review-nav-open',expanded);
+  $('reviewNavToggle').setAttribute('aria-expanded',String(expanded));
 });
 $('numbers').addEventListener('click',e=>{
-  if(reviewRecord&&e.target.closest('[data-jump],[data-passage-jump],[data-section-jump]')){
+  // Keep the navigation visible in expanded Review while jumping between
+  // passages/questions. In regular Review it may collapse to save space.
+  if(reviewRecord&&document.fullscreenElement!==$('workspace')&&e.target.closest('[data-jump],[data-passage-jump],[data-section-jump]')){
     document.body.classList.remove('review-nav-open');
     $('reviewNavToggle').setAttribute('aria-expanded','false');
   }
