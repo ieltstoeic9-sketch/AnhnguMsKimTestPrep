@@ -362,6 +362,36 @@ body.review-active .gap{display:none!important}
 body.review-active .answers label input,body.review-active .matching-matrix input{accent-color:currentColor}
 
 
+
+/* V5: compact inline gap-filling review, no tick/cross, and no duplicate answer labels. */
+body.review-active #right .note-answer,
+body.review-active #right .summary-notes .note-answer{
+  display:inline-flex!important;align-items:center!important;vertical-align:middle;
+  white-space:nowrap!important;gap:4px;max-width:100%;margin:0 2px;
+  border:0!important;padding:0!important;line-height:1.35;
+}
+body.review-active #right .note-answer .qnum{flex:none;margin:0;align-self:center}
+body.review-active #right .note-answer .review-gap-wrap{flex:0 1 auto;min-width:0}
+body.review-active #right .note-answer .bookmark-btn{display:none!important}
+body.review-active .review-gap-wrap{
+  display:inline-flex;flex-direction:column;align-items:flex-start;gap:3px;
+  vertical-align:middle;width:max-content;min-width:0;max-width:min(190px,46vw);
+  margin:0 2px;
+}
+body.review-active .review-gap-text{
+  display:inline-block;min-height:0;max-width:100%;padding:3px 9px;
+  border-radius:6px;border:1px solid transparent;font-weight:800;
+  line-height:1.45;overflow-wrap:anywhere;white-space:normal;
+}
+body.review-active .review-gap-text.correct{background:#e3f1ff;color:#173858;border-color:#a9c8e7}
+body.review-active .review-gap-text.wrong{background:#fdecee;color:#c92e35;border-color:#efb6bc}
+body.review-active .summary-notes p{line-height:1.9;overflow-wrap:normal;word-break:normal}
+body.review-active .note-completion{overflow-wrap:normal}
+body.review-active .gap-review-details{margin-top:13px;padding-top:2px;clear:both}
+body.review-active .gap-review-details:empty{display:none}
+body.review-active .gap-review-details .review-evidence{margin-top:9px}
+body.review-active #right .question:has(.review-gap-wrap) .review-feedback{display:none}
+
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-19/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
 <main><section id="intro" class="intro"><h1>IELTS General Training Reading</h1><p class="sub">No. 19 · Test 1 · 40 questions · 3 sections</p><h2>Choose your test mode</h2><div class="choice"><label><input type="radio" name="mode" value="practice"> <b>Practice Mode</b><div class="sub">Unlimited time · No countdown</div></label><label><input type="radio" name="mode" value="exam"> <b>Exam Mode</b><div class="sub">60-minute countdown</div></label></div><p id="authStatus" class="meta">Checking your sign-in…</p><button id="start" disabled>START TEST ▶</button><button id="resume" class="secondary resume-control hidden" type="button">RESUME PREVIOUS TEST</button><p id="resumeInfo" class="meta hidden"></p></section>
@@ -657,15 +687,51 @@ function applyInlineReviewState(q,item){
   else if(kind==='heading')applyHeadingReview(q,item);
 }
 
+function makeReviewEvidenceDetail(q,item){
+  if(typeof item.evidence!=='string'||!item.evidence.trim())return null;
+  const detail=document.createElement('div');
+  detail.className='review-evidence review-evidence-detail hidden';
+  detail.id='review-evidence-'+q;
+  const evLabel=document.createElement('strong');evLabel.textContent='Evidence';detail.append(evLabel);
+  const evText=document.createElement('div');evText.className='evidence-quote';evText.textContent='“'+item.evidence+'”';
+  detail.append(evText);emphasizeKeywords(evText,evidenceKeywords(item));
+  if(typeof item.explanation==='string'&&item.explanation.trim()){
+    const expLabel=document.createElement('strong');expLabel.textContent='Explanation · Giải thích';expLabel.className='evidence-explanation-label';
+    const exp=document.createElement('div');exp.textContent=item.explanation;detail.append(expLabel,exp);
+  }
+  return detail;
+}
+function appendGapEvidence(holder,detail){
+  if(!detail)return;
+  // Never insert block feedback inside an inline answer span: it breaks the sentence layout.
+  const note=holder.closest('.note-completion');
+  if(note){
+    let dock=note.querySelector('.gap-review-details');
+    if(!dock){dock=document.createElement('div');dock.className='gap-review-details';note.append(dock);}
+    dock.append(detail);
+  }else{
+    // Q15–21 are standalone question cards, so evidence may live below the question text.
+    holder.append(detail);
+  }
+}
 function decorateReview(){
   if(!reviewRecord)return;
   const byQuestion=new Map(reviewRecord.answers.map(item=>[Number(item.question),item]));
   for(let q=rng(state.section)[0];q<=rng(state.section)[1];q++){
     const holder=$('q'+q),item=byQuestion.get(q);
-    if(!holder||!item||holder.querySelector('.review-feedback'))continue;
+    if(!holder||!item||holder.dataset.reviewDecorated==='1')continue;
+    holder.dataset.reviewDecorated='1';
     holder.classList.add(item.isCorrect===true?'review-correct':'review-incorrect');
     holder.setAttribute('title','Select question '+q+' to view evidence in the passage');
     applyInlineReviewState(q,item);
+    const type=reviewQuestionType(q);
+    const gapType=type==='sentence-gap'||type==='note-gap'||type==='summary-gap';
+    const detail=makeReviewEvidenceDetail(q,item);
+    if(gapType){
+      // The inline coloured answer conveys the result; no labels, ticks, or crosses.
+      appendGapEvidence(holder,detail);
+      continue;
+    }
     const feedback=document.createElement('div');feedback.className='review-feedback';
     const badge=document.createElement('strong');badge.textContent=item.isCorrect===true?'✓ Correct':'✗ Incorrect';
     const answer=document.createElement('span');answer.textContent=' Your answer: '+(String(item.answer||'').trim()||'(blank)');
@@ -674,25 +740,14 @@ function decorateReview(){
       const key=document.createElement('div');key.className='review-evidence';
       key.textContent='Correct answer: '+item.correctAnswer;feedback.append(key);
     }
-    if(typeof item.evidence==='string'&&item.evidence.trim()){
-      const detail=document.createElement('div');
-      detail.className='review-evidence review-evidence-detail hidden';
-      detail.id='review-evidence-'+q;
-      const evLabel=document.createElement('strong');evLabel.textContent='Evidence';detail.append(evLabel);
-      const evText=document.createElement('div');evText.className='evidence-quote';evText.textContent='“'+item.evidence+'”';
-      detail.append(evText);emphasizeKeywords(evText,evidenceKeywords(item));
-      if(typeof item.explanation==='string'&&item.explanation.trim()){
-        const expLabel=document.createElement('strong');expLabel.textContent='Explanation · Giải thích';expLabel.className='evidence-explanation-label';
-        const exp=document.createElement('div');exp.textContent=item.explanation;detail.append(expLabel,exp);
-      }
-      feedback.append(detail);
-    }
+    if(detail)feedback.append(detail);
     if(holder.tagName==='TR'){
       const cell=holder.querySelector('.prompt-cell');if(cell)cell.append(feedback);
     }else holder.append(feedback);
   }
   document.querySelectorAll('#right input,#right button[data-flag]').forEach(el=>{el.disabled=true});
 }
+
 function showSubmittedStatus(message){$('submit').disabled=true;$('submit').textContent='SUBMITTED';$('notice').textContent=message;document.querySelectorAll('#right input').forEach(x=>x.disabled=true)}
 function postToFirebase(payload){const iframe=document.createElement('iframe');iframe.name='kim_reading_'+Date.now();iframe.title='Submission transport';iframe.hidden=true;document.body.append(iframe);const form=document.createElement('form');form.method='POST';form.action=FIREBASE_RESULTS_URL;form.target=iframe.name;form.hidden=true;const inp=document.createElement('input');inp.name='payload';inp.value=JSON.stringify(payload);form.append(inp);document.body.append(form);form.submit();form.remove();setTimeout(()=>iframe.remove(),90000)}
 async function checkSavedAttempt(){
