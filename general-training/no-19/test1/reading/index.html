@@ -297,6 +297,49 @@ body.review-active #reviewNavToggle{display:none!important}
 .review-active .heading-slot-text,.review-active .heading-option{cursor:default}
 .summary-notes p{margin:14px 0;line-height:2}
 @media(max-width:700px){.heading-slot{padding:5px;min-height:34px}.heading-option{padding:6px;font-size:12px}.paragraph-heading-row{gap:5px}}
+
+/* No.19 Reading V2: compact headings aligned as Q# | Section | drop zone. */
+#left .heading-paragraph-item{border:0;padding:0;margin:17px 0 7px;overflow:visible}
+#left .paragraph-heading-row{margin:0;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
+#left .paragraph-heading-row .qnum{flex:0 0 auto;min-width:29px;text-align:center;padding:3px 5px;font-size:13px}
+#left .paragraph-heading-row h3{margin:0;flex:0 0 auto;font-size:15px;white-space:nowrap}
+#left .paragraph-heading-row .heading-slot{min-width:0;flex:1 1 0;width:0}
+#left .heading-paragraph-item .review-feedback{max-width:100%;padding:7px 10px;margin-top:6px;border-radius:6px;background:#f5f9ff}
+#left .heading-paragraph-item .bookmark-btn{flex:0 0 auto}
+/* Multiple choice: A, B, C, D always stacked vertically, not on one row. */
+#right .question.mc-question .answers{display:flex;flex-direction:column;align-items:stretch;gap:7px;margin-left:0}
+#right .question.mc-question .answers label{width:100%;display:flex;align-items:flex-start;gap:9px;min-width:0;white-space:normal}
+#right .question.mc-question .answers label input{margin-top:5px;flex:0 0 auto}
+#right .question.mc-question .answers label span{min-width:13px;flex:0 0 auto;font-weight:700}
+@media(max-width:650px){#left .paragraph-heading-row{gap:5px}#left .paragraph-heading-row h3{font-size:12px}#left .heading-slot{padding:4px;min-height:31px}}
+
+/* No.19 V3: Summary Completion Q33–37 — keep Q number and answer box as a single unbreakable unit. */
+#right .summary-notes .note-answer{
+  display:inline-flex!important;
+  align-items:baseline;
+  gap:5px;
+  white-space:nowrap!important;
+  vertical-align:baseline;
+  max-width:100%;
+  border:0;
+  padding:0;
+  margin:0 2px;
+  line-height:1.45;
+}
+#right .summary-notes .note-answer .qnum{display:inline-flex;flex:none;margin:0;align-self:center;white-space:nowrap}
+#right .summary-notes .note-answer .gap{
+  box-sizing:border-box;
+  display:inline-block;
+  flex:0 1 150px;
+  width:clamp(85px,12vw,150px);
+  min-width:0;
+  max-width:150px;
+  vertical-align:baseline;
+}
+#right .summary-notes .note-answer .bookmark-btn{flex:none;align-self:center;margin:0}
+#right .summary-notes p{line-height:2.1;overflow-wrap:normal;word-break:normal}
+@media(max-width:680px){#right .summary-notes .note-answer .gap{width:95px;max-width:95px;flex-basis:95px}}
+
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-19/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
 <main><section id="intro" class="intro"><h1>IELTS General Training Reading</h1><p class="sub">No. 19 · Test 1 · 40 questions · 3 sections</p><h2>Choose your test mode</h2><div class="choice"><label><input type="radio" name="mode" value="practice"> <b>Practice Mode</b><div class="sub">Unlimited time · No countdown</div></label><label><input type="radio" name="mode" value="exam"> <b>Exam Mode</b><div class="sub">60-minute countdown</div></label></div><p id="authStatus" class="meta">Checking your sign-in…</p><button id="start" disabled>START TEST ▶</button><button id="resume" class="secondary resume-control hidden" type="button">RESUME PREVIOUS TEST</button><p id="resumeInfo" class="meta hidden"></p></section>
@@ -486,13 +529,16 @@ function selectReviewEvidence(q){
   if(!reviewRecord)return;
   const item=reviewRecord.answers.find(a=>Number(a.question)===q);
   if(!item)return;
-  $('right').querySelectorAll('.review-selected').forEach(el=>el.classList.remove('review-selected'));
-  const selected=$('q'+q);if(selected)selected.classList.add('review-selected');
-  $('right').querySelectorAll('.review-evidence-detail').forEach(el=>el.classList.add('hidden'));
-  const detail=$('review-evidence-'+q);if(detail)detail.classList.remove('hidden');
   // Reset the passage before highlighting a new question, preventing stale matches.
   passage();
   repaintHighlights();
+  // Q28–32 now live on the LEFT beside paragraphs A–E. Rebuild their
+  // review feedback after passage() updates the DOM; do not duplicate right-side feedback.
+  if(state.section===2)decorateReview();
+  document.querySelectorAll('#workspace .review-selected').forEach(el=>el.classList.remove('review-selected'));
+  const selected=$('q'+q);if(selected)selected.classList.add('review-selected');
+  document.querySelectorAll('#workspace .review-evidence-detail').forEach(el=>el.classList.add('hidden'));
+  const detail=$('review-evidence-'+q);if(detail)detail.classList.remove('hidden');
   if(typeof item.evidence!=='string'||!item.evidence.trim())return;
   const found=findEvidenceParagraph(item);
   if(found){
@@ -508,7 +554,7 @@ function decorateReview(){
   const byQuestion=new Map(reviewRecord.answers.map(item=>[Number(item.question),item]));
   for(let q=rng(state.section)[0];q<=rng(state.section)[1];q++){
     const holder=$('q'+q),item=byQuestion.get(q);
-    if(!holder||!item)continue;
+    if(!holder||!item||holder.querySelector('.review-feedback'))continue;
     holder.classList.add(item.isCorrect===true?'review-correct':'review-incorrect');
     holder.setAttribute('title','Select question '+q+' to view evidence in the passage');
     const feedback=document.createElement('div');feedback.className='review-feedback';
@@ -591,7 +637,7 @@ function passage(){
     let subtitle=h?'<h3>'+esc(h)+'</h3>':'';
     if(state.section===2 && /^[A-E]$/.test(h)){
       const q=28+h.charCodeAt(0)-65;
-      subtitle='<div class="paragraph-heading-row"><h3>'+esc(h)+'</h3>'+headingSlot(q)+'</div>';
+      subtitle='<div class="heading-paragraph-item question" id="q'+q+'"><div class="paragraph-heading-row"><span class="qnum">'+q+'</span><h3>Section '+esc(h)+'</h3>'+headingSlot(q)+bookmarkButton(q)+'</div></div>';
     }
     return subtitle+'<p data-highlight-target="s'+state.section+'-passage-'+(originalIndex+i)+'">'+esc(t)+'</p>';
   }).join('')+'</section>';
@@ -613,7 +659,7 @@ function bookmarkButton(q){
 function activateQuestion(q){
   if(!Number.isInteger(q)||q<1||q>40)return;
   activeQuestion=q;
-  document.querySelectorAll('#right .active-question').forEach(el=>el.classList.remove('active-question'));
+  document.querySelectorAll('#workspace .active-question').forEach(el=>el.classList.remove('active-question'));
   const target=$('q'+q);if(target)target.classList.add('active-question');
   if(reviewRecord)selectReviewEvidence(q);
 }
@@ -651,10 +697,10 @@ function summaryNotes(){
 }
 function headingBank(){
   return '<div class="heading-matching" aria-label="Matching Headings">'+
-    '<h3 class="heading-bank-title">List of Headings</h3><p class="heading-bank-intro">Drag each heading to the answer box beside Section A–E in the passage on the left.</p>'+
+    '<h3 class="heading-bank-title">List of Headings</h3>'+
     '<div class="heading-bank">'+DATA.headings.map((title,i)=>{const id=HEADING_IDS[i],used=Object.values(state.answers).some(v=>v===id);
       return '<div class="heading-option '+(used?'used':'')+'" draggable="'+(!state.done&&!reviewRecord)+'" data-drag-heading="'+id+'" tabindex="0"><span class="heading-roman">'+id+'</span><span>'+esc(title)+'</span></div>';
-    }).join('')+'</div><h3>Sections A–E</h3>'+[28,29,30,31,32].map(q=>'<div class="question heading-question" id="q'+q+'"><div class="qhead"><span class="qnum">'+q+'</span><p>'+esc(qs[q])+' <span class="heading-answer-preview" id="heading-answer-'+q+'">'+esc(state.answers[q]||'—')+'</span></p>'+bookmarkButton(q)+'</div></div>').join('')+'</div>';
+    }).join('')+'</div></div>';
 }
 function highlightTargets(){
   document.querySelectorAll('#left p').forEach((el,i)=>{if(!el.dataset.highlightTarget)el.dataset.highlightTarget='s'+state.section+'-passage-'+i});
@@ -815,7 +861,7 @@ function render(){
     const parts=question.split('{gap}');
     const label=options?esc(question):parts.map(esc).join('<input class="gap" data-q="'+q+'" aria-label="Answer '+q+'" value="'+esc(state.answers[q]||'')+'" maxlength="90" autocomplete="off">');
     const controls=options?'<div class="answers">'+options.map((op,i)=>'<label><input type="radio" name="q'+q+'" data-q="'+q+'" value="'+esc(op)+'" '+(state.answers[q]===op?'checked':'')+'><span>'+esc(op)+'</span>'+(mc[q]?' · '+esc(mc[q][i]):'')+'</label>').join('')+'</div>':'';
-    out+='<div class="question" id="q'+q+'"><div class="qhead"><span class="qnum">'+q+'</span><p>'+label+'</p>'+bookmarkButton(q)+'</div>'+controls+'</div>';
+    out+='<div class="question '+(q>=38?'mc-question':'')+'" id="q'+q+'"><div class="qhead"><span class="qnum">'+q+'</span><p>'+label+'</p>'+bookmarkButton(q)+'</div>'+controls+'</div>';
   }
   $('right').innerHTML='<h2 class="question-title">'+(state.section<2?'Passage '+(pindex(state.section,activeQuestion)+1)+' · ':'')+'Questions '+start+'–'+end+'</h2>'+out;
   $('right').scrollTop=0;$('left').scrollTop=0;nav();repaintHighlights();if(reviewRecord)decorateReview();if(activeQuestion>=start&&activeQuestion<=end)activateQuestion(activeQuestion);
@@ -871,7 +917,7 @@ document.addEventListener('drop',e=>{
 document.addEventListener('dragend',()=>{headingDragId=null;document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'))});
 $('left').addEventListener('click',e=>{
   const clear=e.target.closest('[data-clear-heading]');if(clear)clearHeading(Number(clear.dataset.clearHeading));
-  const slot=e.target.closest('[data-drop-q]');if(slot && reviewRecord){activeQuestion=Number(slot.dataset.dropQ);selectReviewEvidence(activeQuestion);nav();}
+  const heading=e.target.closest('.heading-paragraph-item');if(heading && reviewRecord){activeQuestion=Number(heading.id.slice(1));selectReviewEvidence(activeQuestion);nav();}
 });
 // Touch/pen pointer fallback for dragging across panes without triggering scrolling.
 let movingHeading=null;
@@ -888,7 +934,7 @@ document.addEventListener('pointerup',e=>{
   if(slot)assignHeading(Number(slot.dataset.dropQ),id);
 });
 $('right').addEventListener('input',e=>{let el=e.target.closest('[data-q]');if(!el)return;state.answers[Number(el.dataset.q)]=el.value;nav();persist()});
-$('right').addEventListener('click',e=>{
+$('workspace').addEventListener('click',e=>{
   const b=e.target.closest('[data-bookmark]');
   if(!b||reviewRecord||state.done)return;
   const q=Number(b.dataset.bookmark);
@@ -909,8 +955,8 @@ $('numbers').addEventListener('click',e=>{
     activeQuestion=q;state.section=section;
     render();activateQuestion(q);persist();
     requestAnimationFrame(()=>{
-      const target=$('q'+q);
-      if(target){const top=target.getBoundingClientRect().top-$('right').getBoundingClientRect().top+$('right').scrollTop-24;$('right').scrollTo({top:Math.max(0,top),behavior:'smooth'});}
+      const target=$('q'+q),pane=q>=28&&q<=32?$('left'):$('right');
+      if(target){const top=target.getBoundingClientRect().top-pane.getBoundingClientRect().top+pane.scrollTop-24;pane.scrollTo({top:Math.max(0,top),behavior:'smooth'});}
     });
     return;
   }
@@ -928,8 +974,8 @@ $('numbers').addEventListener('click',e=>{
   if(section!==state.section||currentGroup!==newGroup){state.section=section;render();}
   activateQuestion(q);nav();persist();
   requestAnimationFrame(()=>{
-    const target=$('q'+q);
-    if(target){const top=target.getBoundingClientRect().top-$('right').getBoundingClientRect().top+$('right').scrollTop-24;$('right').scrollTo({top:Math.max(0,top),behavior:'smooth'});}
+    const target=$('q'+q),pane=q>=28&&q<=32?$('left'):$('right');
+    if(target){const top=target.getBoundingClientRect().top-pane.getBoundingClientRect().top+pane.scrollTop-24;pane.scrollTo({top:Math.max(0,top),behavior:'smooth'});}
   });
 });
 
