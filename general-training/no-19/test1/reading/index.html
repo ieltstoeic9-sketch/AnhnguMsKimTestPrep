@@ -18,7 +18,7 @@
 .matching-matrix tr:has(input:checked) .qnum{background:#cce8dc}
 @media(max-width:1050px){.matching-matrix .prompt-head,.matching-matrix .prompt-cell{width:54%}.matching-matrix th,.matching-matrix td{padding:5px 1px}.matching-matrix .prompt-cell{padding:6px 4px}.matching-matrix .prompt-inner{gap:4px}.matching-matrix .prompt-inner .qnum{width:23px;height:23px;min-width:23px;font-size:11px}.matching-matrix input[type=radio]{width:13px;height:13px}.matching-matrix .flag{font-size:12px}}
 @media(max-width:720px){.matching-matrix{font-size:10px}.matching-matrix .prompt-head,.matching-matrix .prompt-cell{width:48%}.matching-matrix .matrix-radio{min-height:29px}.matching-matrix .matrix-text{overflow-wrap:anywhere}}
-.review-evidence{display:block;margin-top:7px;padding:8px 10px;background:#f1f6fb;border-left:3px solid #315f88;font-size:13px;font-weight:400}.review-evidence-button{margin-top:7px;font-size:12px;padding:5px 10px}.evidence-highlight{background:#fff0b0;outline:2px solid #e8b650;border-radius:3px}.review-correct{border-left:3px solid #16835f;padding-left:8px}.review-incorrect{border-left:3px solid #c92e35;padding-left:8px}.review-feedback{font-size:13px;margin:7px 0;color:#36485b;overflow-wrap:anywhere}.review-correct .review-feedback strong{color:#16835f}.review-incorrect .review-feedback strong{color:#c92e35}.footer #submit{margin-left:auto;background:#143c66}.footer #finish{margin-left:0}.intro#resultPanel{max-width:980px;margin:16px auto}.intro#resultPanel #resultBody{font-size:19px;font-weight:700;overflow-wrap:anywhere}.note-completion{border:1px solid #cdd8e4;padding:12px;border-radius:8px;overflow-wrap:anywhere}.note-completion h3{text-align:center;margin:0 0 12px}.note-completion ul{padding-left:20px}.note-completion li{margin:9px 0}.note-answer{display:inline;white-space:normal;border:0;padding:2px 0}.note-answer .qnum{display:inline-flex;font-size:12px;padding:1px 6px;margin-right:3px}.note-answer .gap{display:inline-block;max-width:100%;width:clamp(90px,25vw,180px)}.note-answer .flag{vertical-align:middle}.note-answer .review-feedback{display:block}.note-completion ul ul{padding-left:12px}@media(max-width:720px){.note-completion{padding:7px}.note-completion ul{padding-left:13px}.note-answer .gap{width:95px}}
+.review-evidence{display:block;margin-top:7px;padding:8px 10px;background:#f1f6fb;border-left:3px solid #315f88;font-size:13px;font-weight:400}.review-evidence-button{margin-top:7px;font-size:12px;padding:5px 10px}.evidence-highlight{background:#fff0b0;outline:2px solid #e8b650;border-radius:3px}.review-correct{border-left:3px solid #315f88;padding-left:8px}.review-incorrect{border-left:3px solid #c92e35;padding-left:8px}.review-feedback{font-size:13px;margin:7px 0;color:#36485b;overflow-wrap:anywhere}.review-correct .review-feedback strong{color:#173858}.review-incorrect .review-feedback strong{color:#c92e35}.footer #submit{margin-left:auto;background:#143c66}.footer #finish{margin-left:0}.intro#resultPanel{max-width:980px;margin:16px auto}.intro#resultPanel #resultBody{font-size:19px;font-weight:700;overflow-wrap:anywhere}.note-completion{border:1px solid #cdd8e4;padding:12px;border-radius:8px;overflow-wrap:anywhere}.note-completion h3{text-align:center;margin:0 0 12px}.note-completion ul{padding-left:20px}.note-completion li{margin:9px 0}.note-answer{display:inline;white-space:normal;border:0;padding:2px 0}.note-answer .qnum{display:inline-flex;font-size:12px;padding:1px 6px;margin-right:3px}.note-answer .gap{display:inline-block;max-width:100%;width:clamp(90px,25vw,180px)}.note-answer .flag{vertical-align:middle}.note-answer .review-feedback{display:block}.note-completion ul ul{padding-left:12px}@media(max-width:720px){.note-completion{padding:7px}.note-completion ul{padding-left:13px}.note-answer .gap{width:95px}}
 
 /* Reading flag UI: hide repetitive flag buttons until question is active. */
 #right .flag{opacity:0;visibility:hidden;transition:opacity .14s ease;}
@@ -340,6 +340,28 @@ body.review-active #reviewNavToggle{display:none!important}
 #right .summary-notes p{line-height:2.1;overflow-wrap:normal;word-break:normal}
 @media(max-width:680px){#right .summary-notes .note-answer .gap{width:95px;max-width:95px;flex-basis:95px}}
 
+/* V4 review styling: correct = navy on light blue; incorrect = red on light red. */
+.review-option-correct{background:#e3f1ff!important;border-color:#315f88!important;color:#173858!important;box-shadow:inset 0 0 0 1px #98bcdf}
+.review-option-wrong{background:#fdecee!important;border-color:#c92e35!important;color:#c92e35!important;box-shadow:inset 0 0 0 1px #e5a8af}
+.review-option-correct span,.review-option-correct .heading-slot-text,.review-option-correct .matrix-text{color:#173858!important}
+.review-option-wrong span,.review-option-wrong .heading-slot-text,.review-option-wrong .matrix-text{color:#c92e35!important}
+.review-gap-wrap{display:inline-flex;flex-direction:column;gap:4px;vertical-align:middle;max-width:100%;min-width:min(180px,100%)}
+.review-gap-text{display:inline-flex;align-items:center;min-height:32px;padding:4px 9px;border-radius:7px;border:1px solid transparent;font-weight:800;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.review-gap-text.correct{background:#e3f1ff;color:#173858;border-color:#98bcdf}
+.review-gap-text.wrong{background:#fdecee;color:#c92e35;border-color:#e5a8af}
+.review-gap-note{font-size:11px;font-weight:700;letter-spacing:.01em;text-transform:uppercase}
+.review-gap-note.correct{color:#315f88}
+.review-gap-note.wrong{color:#c92e35}
+.review-heading-stack{display:flex;flex-direction:column;gap:6px;width:100%}
+.review-heading-chip{display:block;padding:7px 9px;border-radius:7px;font-size:13px;line-height:1.35;overflow-wrap:anywhere;border:1px solid transparent}
+.review-heading-chip.correct{background:#e3f1ff;color:#173858;border-color:#98bcdf}
+.review-heading-chip.wrong{background:#fdecee;color:#c92e35;border-color:#e5a8af}
+body.review-active .heading-slot.review-option-correct{background:#e3f1ff!important;border:1px solid #98bcdf!important}
+body.review-active .heading-slot.review-option-wrong{background:#fdecee!important;border:1px solid #e5a8af!important}
+body.review-active .gap{display:none!important}
+body.review-active .answers label input,body.review-active .matching-matrix input{accent-color:currentColor}
+
+
 </style></head><body>
 <header class="bar"><div class="brand">ANH NGỮ MS. KIM<small>Key to IELTS Mastery</small></div><div class="crumb"><a href="../../../no-19/test1/">← Test 1 skills</a> · General Training · Reading</div></header>
 <main><section id="intro" class="intro"><h1>IELTS General Training Reading</h1><p class="sub">No. 19 · Test 1 · 40 questions · 3 sections</p><h2>Choose your test mode</h2><div class="choice"><label><input type="radio" name="mode" value="practice"> <b>Practice Mode</b><div class="sub">Unlimited time · No countdown</div></label><label><input type="radio" name="mode" value="exam"> <b>Exam Mode</b><div class="sub">60-minute countdown</div></label></div><p id="authStatus" class="meta">Checking your sign-in…</p><button id="start" disabled>START TEST ▶</button><button id="resume" class="secondary resume-control hidden" type="button">RESUME PREVIOUS TEST</button><p id="resumeInfo" class="meta hidden"></p></section>
@@ -549,6 +571,92 @@ function selectReviewEvidence(q){
     pane.scrollTo({top:Math.max(0,y),behavior:'smooth'});
   }
 }
+
+function normAnswer(v){return String(v??'').trim().toLowerCase();}
+function reviewQuestionType(q){
+  if(q>=1&&q<=7)return 'tfng';
+  if(q>=8&&q<=14)return 'matrix';
+  if(q>=15&&q<=21)return 'sentence-gap';
+  if(q>=22&&q<=27)return 'note-gap';
+  if(q>=28&&q<=32)return 'heading';
+  if(q>=33&&q<=37)return 'summary-gap';
+  if(q>=38&&q<=40)return 'mc';
+  return '';
+}
+function makeReviewGapLine(kind,text){
+  const line=document.createElement('span');
+  line.className='review-gap-text '+kind;
+  line.textContent=text||'(blank)';
+  return line;
+}
+function applyGapReview(q,item){
+  const input=document.querySelector('.gap[data-q="'+q+'"]');
+  if(!input||input.dataset.reviewApplied==='1')return;
+  input.dataset.reviewApplied='1';
+  const student=String(item.answer||'').trim();
+  const correct=String(item.correctAnswer||'').trim();
+  const wrap=document.createElement('span');
+  wrap.className='review-gap-wrap';
+  if(item.isCorrect===true){
+    wrap.append(makeReviewGapLine('correct',correct||student));
+  }else{
+    wrap.append(makeReviewGapLine('wrong',student||'(blank)'));
+    if(correct)wrap.append(makeReviewGapLine('correct',correct));
+  }
+  input.replaceWith(wrap);
+}
+function applyChoiceReview(q,item){
+  const correct=normAnswer(item.correctAnswer||'');
+  const student=normAnswer(item.answer||'');
+  const selector=(q>=8&&q<=14)?'#q'+q+' .matrix-radio':'#q'+q+' .answers label';
+  document.querySelectorAll(selector).forEach(label=>{
+    const inp=label.querySelector('input');
+    if(!inp)return;
+    const value=normAnswer(inp.value);
+    if(value===correct)label.classList.add('review-option-correct');
+    if(item.isCorrect!==true && student && value===student)label.classList.add('review-option-wrong');
+  });
+}
+function headingMarkup(id){
+  const idx=HEADING_IDS.indexOf(String(id||'').trim().toLowerCase());
+  return idx>=0?'<b>'+HEADING_IDS[idx]+'</b> · '+esc(DATA.headings[idx]):esc(String(id||'')||'(blank)');
+}
+function applyHeadingReview(q,item){
+  const slot=document.querySelector('[data-drop-q="'+q+'"]');
+  if(!slot||slot.dataset.reviewApplied==='1')return;
+  slot.dataset.reviewApplied='1';
+  const student=String(item.answer||'').trim().toLowerCase();
+  const correct=String(item.correctAnswer||'').trim().toLowerCase();
+  slot.classList.add(item.isCorrect===true?'review-option-correct':'review-option-wrong','filled');
+  slot.innerHTML='';
+  const stack=document.createElement('div');
+  stack.className='review-heading-stack';
+  if(item.isCorrect===true){
+    const chip=document.createElement('span');
+    chip.className='review-heading-chip correct';
+    chip.innerHTML=headingMarkup(correct||student);
+    stack.append(chip);
+  }else{
+    const wrong=document.createElement('span');
+    wrong.className='review-heading-chip wrong';
+    wrong.innerHTML=headingMarkup(student||'(blank)');
+    stack.append(wrong);
+    if(correct){
+      const ok=document.createElement('span');
+      ok.className='review-heading-chip correct';
+      ok.innerHTML=headingMarkup(correct);
+      stack.append(ok);
+    }
+  }
+  slot.append(stack);
+}
+function applyInlineReviewState(q,item){
+  const kind=reviewQuestionType(q);
+  if(kind==='tfng'||kind==='mc'||kind==='matrix')applyChoiceReview(q,item);
+  else if(kind==='sentence-gap'||kind==='note-gap'||kind==='summary-gap')applyGapReview(q,item);
+  else if(kind==='heading')applyHeadingReview(q,item);
+}
+
 function decorateReview(){
   if(!reviewRecord)return;
   const byQuestion=new Map(reviewRecord.answers.map(item=>[Number(item.question),item]));
@@ -557,6 +665,7 @@ function decorateReview(){
     if(!holder||!item||holder.querySelector('.review-feedback'))continue;
     holder.classList.add(item.isCorrect===true?'review-correct':'review-incorrect');
     holder.setAttribute('title','Select question '+q+' to view evidence in the passage');
+    applyInlineReviewState(q,item);
     const feedback=document.createElement('div');feedback.className='review-feedback';
     const badge=document.createElement('strong');badge.textContent=item.isCorrect===true?'✓ Correct':'✗ Incorrect';
     const answer=document.createElement('span');answer.textContent=' Your answer: '+(String(item.answer||'').trim()||'(blank)');
